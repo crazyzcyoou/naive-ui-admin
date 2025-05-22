@@ -4,6 +4,10 @@ import { RedirectRoute } from '@/router/base';
 import { PageEnum } from '@/enums/pageEnum';
 import { createRouterGuards } from './guards';
 
+import type { IModuleType } from './types';
+
+const modules = import.meta.glob<IModuleType>('./modules/**/*.ts', { eager: true });
+
 
 const allowedKeys = ['demandSupply', 'dashboard', 'system'];
 
