@@ -9,9 +9,9 @@ export interface SysUserItem {
 }
 
 export function getUserList(params?) {
-  return Alova.Get<{ list: SysUserItem[] }>('/user/list', { params });
+  return Alova.Get<{ list: SysUserItem[] }>('/v1/user/list', { params });
 }
 
 export function toggleUser(id: number) {
-  return Alova.Post(`/user/toggle/${id}`);
+  return Alova.Post(`/v1/user/toggle/${id}`);
 }

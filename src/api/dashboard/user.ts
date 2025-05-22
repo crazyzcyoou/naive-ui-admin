@@ -8,5 +8,5 @@ export interface UserDashboardItem {
 }
 
 export function getUserDashboard(params?) {
-  return Alova.Get<{ list: UserDashboardItem[] }>('/dashboard/user', { params });
+  return Alova.Get<{ list: UserDashboardItem[] }>('/v1/user/dashboard', { params });
 }
