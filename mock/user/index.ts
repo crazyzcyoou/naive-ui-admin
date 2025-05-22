@@ -4,16 +4,16 @@ import { defineMock } from '@alova/mock';
 
 const Random = Mock.Random;
 
-const token = Random.string('upper', 32, 32);
+export const adminToken = Random.string('upper', 32, 32);
 
-const adminInfo = {
+export const adminInfo = {
   userId: '1',
   username: 'admin',
   realName: 'Admin',
   avatar: Random.image(),
   desc: 'manager',
   password: Random.string('upper', 4, 16),
-  token,
+  token: adminToken,
   permissions: [
     {
       label: '主控台',
@@ -35,10 +35,18 @@ const adminInfo = {
       label: '基础列表删除',
       value: 'basic_list_delete',
     },
+    {
+      label: '用户管理',
+      value: 'system_user_manage',
+    },
+    {
+      label: '用户仪表盘',
+      value: 'user_dashboard',
+    },
   ],
 };
 
 export default defineMock({
-  '[POST]/api/login': () => resultSuccess({ token }),
+  '[POST]/api/login': () => resultSuccess({ token: adminToken }),
   '/api/admin_info': () => resultSuccess(adminInfo),
 });

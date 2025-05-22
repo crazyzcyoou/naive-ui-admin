@@ -47,6 +47,15 @@ const routes: Array<RouteRecordRaw> = [
         },
         component: () => import('@/views/dashboard/workplace/workplace.vue'),
       },
+      {
+        path: 'user',
+        name: `${routeName}_user`,
+        meta: {
+          title: '用户仪表盘',
+          permissions: ['user_dashboard'],
+        },
+        component: () => import('@/views/dashboard/user/user.vue'),
+      },
     ],
   },
 ];
