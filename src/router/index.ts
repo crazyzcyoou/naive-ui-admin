@@ -4,16 +4,16 @@ import { RedirectRoute } from '@/router/base';
 import { PageEnum } from '@/enums/pageEnum';
 import { createRouterGuards } from './guards';
 
-// Manually import required route modules to hide unused menus
-import demandSupply from './modules/demandSupply';
-import dashboard from './modules/dashboard';
-import system from './modules/system';
 
-const routeModuleList: RouteRecordRaw[] = [
-  ...(Array.isArray(demandSupply) ? demandSupply : [demandSupply]),
-  ...(Array.isArray(dashboard) ? dashboard : [dashboard]),
-  ...(Array.isArray(system) ? system : [system]),
-];
+const allowedKeys = ['demandSupply', 'dashboard', 'system'];
+
+const routeModuleList: RouteRecordRaw[] = Object.entries(modules).reduce((list, [key, mod]) => {
+  const name = key.split('/').pop()?.replace('.ts', '') ?? '';
+  if (!allowedKeys.includes(name)) return list;
+  const modExport = (mod as any).default ?? {};
+  const modList = Array.isArray(modExport) ? [...modExport] : [modExport];
+  return [...list, ...modList];
+}, []);
 
 function sortRoute(a, b) {
   return (a.meta?.sort ?? 0) - (b.meta?.sort ?? 0);
