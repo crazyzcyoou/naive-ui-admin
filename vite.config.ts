@@ -27,7 +27,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
   return {
     base: VITE_PUBLIC_PATH,
     esbuild: {
-      target: 'esnext'
+      target: 'es2021'
     },
     resolve: {
       alias: [
@@ -58,7 +58,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       exclude: ['vue-demi'],
     },
     build: {
-      target: 'es2015',
+      target: 'es2021',
       cssTarget: 'chrome80',
       outDir: OUTPUT_DIR,
       reportCompressedSize: false,
