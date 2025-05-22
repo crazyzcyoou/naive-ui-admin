@@ -20,6 +20,7 @@ const routes: Array<RouteRecordRaw> = [
         name: 'system_menu',
         meta: {
           title: '菜单权限',
+          hidden: true,
         },
         component: () => import('@/views/system/menu/menu.vue'),
       },
@@ -28,6 +29,7 @@ const routes: Array<RouteRecordRaw> = [
         name: 'system_role',
         meta: {
           title: '角色权限',
+          hidden: true,
         },
         component: () => import('@/views/system/role/role.vue'),
       },
