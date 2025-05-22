@@ -107,13 +107,35 @@
         selectedKeys.value = activeMenu ? (activeMenu as string) : (currentRoute.name as string);
       }
 
+      const allowTitles = ['需求供给', '用户管理', '用户仪表盘'];
+      function filterAllow(list: any[]): any[] {
+        const res: any[] = [];
+        list.forEach((item) => {
+          // keep the entire menu item if it is in the allow list
+          if (allowTitles.includes(item.label)) {
+            res.push({ ...item });
+            return;
+          }
+
+          if (item.children) {
+            const children = filterAllow(item.children);
+            if (children.length) {
+              res.push(...children);
+            }
+          }
+        });
+        return res;
+      }
+
       function updateMenu() {
         if (!settingStore.menuSetting.mixMenu) {
-          menus.value = generatorMenu(asyncRouteStore.getMenus);
+          const list = generatorMenu(asyncRouteStore.getMenus);
+          menus.value = filterAllow(list);
         } else {
           //混合菜单
           const firstRouteName: string = (currentRoute.matched[0].name as string) || '';
-          menus.value = generatorMenuMix(asyncRouteStore.getMenus, firstRouteName, props.location);
+          const list = generatorMenuMix(asyncRouteStore.getMenus, firstRouteName, props.location);
+          menus.value = filterAllow(list);
           const activeMenu: string = currentRoute?.matched[0].meta?.activeMenu as string;
           headerMenuSelectKey.value = (activeMenu ? activeMenu : firstRouteName) || '';
         }
