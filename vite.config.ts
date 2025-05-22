@@ -26,7 +26,9 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
   const isBuild = command === 'build';
   return {
     base: VITE_PUBLIC_PATH,
-    esbuild: {},
+    esbuild: {
+      target: 'esnext'
+    },
     resolve: {
       alias: [
         {
