@@ -3,8 +3,19 @@
 import UserMock from '../../../../mock/user';
 import MenusMock from '../../../../mock/user/menus';
 import ConsoleMock from '../../../../mock/dashboard/console';
+import UserDashboardMock from '../../../../mock/dashboard/user';
 import TableMock from '../../../../mock/table/list';
 import SystemMenuMock from '../../../../mock/system/menu';
 import SystemRoleMock from '../../../../mock/system/role';
+import SystemUserMock from '../../../../mock/system/user';
 
-export default [UserMock, MenusMock, TableMock, ConsoleMock, SystemMenuMock, SystemRoleMock];
+export default [
+  UserMock,
+  MenusMock,
+  TableMock,
+  ConsoleMock,
+  UserDashboardMock,
+  SystemMenuMock,
+  SystemRoleMock,
+  SystemUserMock,
+];

@@ -31,6 +31,15 @@ const routes: Array<RouteRecordRaw> = [
         },
         component: () => import('@/views/system/role/role.vue'),
       },
+      {
+        path: 'user',
+        name: 'system_user',
+        meta: {
+          title: '用户管理',
+          permissions: ['system_user_manage'],
+        },
+        component: () => import('@/views/system/user/user.vue'),
+      },
     ],
   },
 ];
