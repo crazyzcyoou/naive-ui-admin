@@ -7,9 +7,13 @@ import type { IModuleType } from './types';
 
 const modules = import.meta.glob<IModuleType>('./modules/**/*.ts', { eager: true });
 
-const routeModuleList: RouteRecordRaw[] = Object.keys(modules).reduce((list, key) => {
-  const mod = modules[key].default ?? {};
-  const modList = Array.isArray(mod) ? [...mod] : [mod];
+const allowedKeys = ['demandSupply', 'dashboard', 'system'];
+
+const routeModuleList: RouteRecordRaw[] = Object.entries(modules).reduce((list, [key, mod]) => {
+  const name = key.split('/').pop()?.replace('.ts', '') ?? '';
+  if (!allowedKeys.includes(name)) return list;
+  const modExport = (mod as any).default ?? {};
+  const modList = Array.isArray(modExport) ? [...modExport] : [modExport];
   return [...list, ...modList];
 }, []);
 
