@@ -16,7 +16,7 @@ function userList(pageSize: number) {
 }
 
 export default defineMock({
-  '/api/user/list': ({ query }) => {
+  '/v1/user/list': ({ query }) => {
     const { page = 1, pageSize = 10 } = query;
     const list = userList(Number(pageSize));
     const count = 60;
@@ -28,7 +28,7 @@ export default defineMock({
       list,
     });
   },
-  '/api/user/toggle/:id': () => {
+  '/v1/user/toggle/:id': () => {
     return resultSuccess(true);
   },
 });

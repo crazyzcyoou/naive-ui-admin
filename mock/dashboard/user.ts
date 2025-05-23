@@ -13,7 +13,7 @@ function makeUser() {
 }
 
 export default defineMock({
-  '/api/dashboard/user': ({ headers }) => {
+  '/v1/user/dashboard': ({ headers }) => {
     const isAdmin = headers?.token === adminToken;
     const list = isAdmin ? Array.from({ length: 5 }, makeUser) : [makeUser()];
     return resultSuccess({ list });
