@@ -39,7 +39,7 @@ export function changePassword(params) {
  * @description: 用户登出
  */
 export function logout(params) {
-  return Alova.Post('/login/logout', {
+  return Alova.Post('/v1/user/logout', {
     params,
   });
 }
