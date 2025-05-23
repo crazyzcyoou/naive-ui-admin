@@ -9,17 +9,17 @@ export interface DemandItem {
 }
 
 export function getDemandList(params?) {
-  return Alova.Get<{ list: DemandItem[] }>('/demand/list', { params });
+  return Alova.Get<{ list: DemandItem[] }>('/v1/demand/list', { params });
 }
 
 export function updateDemand(id: number, params: Partial<DemandItem>) {
-  return Alova.Post(`/demand/update/${id}`, { params });
+  return Alova.Post(`/v1/demand/update/${id}`, { params });
 }
 
 export function toggleDemand(id: number) {
-  return Alova.Post(`/demand/toggle/${id}`);
+  return Alova.Post(`/v1/demand/toggle/${id}`);
 }
 
 export function uploadDemand(params: Record<string, any>) {
-  return Alova.Post('/demand/upload', { params });
+  return Alova.Post('/v1/demand/upload', { params });
 }

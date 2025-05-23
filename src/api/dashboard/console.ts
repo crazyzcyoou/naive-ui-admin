@@ -31,5 +31,5 @@ export interface TypeConsole {
 
 //获取主控台信息
 export function getConsoleInfo() {
-  return Alova.Get<TypeConsole>('/dashboard/console');
+  return Alova.Get<TypeConsole>('/v1/dashboard/console');
 }
