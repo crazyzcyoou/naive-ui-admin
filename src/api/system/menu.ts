@@ -14,7 +14,7 @@ export interface ListDate {
  * @description: 根据用户id获取用户菜单
  */
 export function adminMenus() {
-  return Alova.Get('/menus');
+  return Alova.Get('/v1/menus');
 }
 
 /**
@@ -22,7 +22,7 @@ export function adminMenus() {
  * @param params
  */
 export function getMenuList(params?) {
-  return Alova.Get<{ list: ListDate[] }>('/menu/list', {
+  return Alova.Get<{ list: ListDate[] }>('/v1/menu/list', {
     params,
   });
 }

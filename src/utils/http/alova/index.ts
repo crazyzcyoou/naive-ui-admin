@@ -81,6 +81,13 @@ export const Alova = createAlova({
       // 请根据自身情况修改数据结构
       const { message, code, result } = res;
 
+      const LoginPath = PageEnum.BASE_LOGIN;
+      if (code === 10032 || message === '未经许可授权') {
+        storage.clear();
+        window.location.href = LoginPath;
+        return;
+      }
+
       // 不进行任何处理，直接返回
       // 用于需要直接获取 code、result、 message 这些信息时开启
       if (method.meta?.isTransformResponse === false) {
@@ -92,7 +99,6 @@ export const Alova = createAlova({
       // @ts-ignore
       const Modal = window.$dialog;
 
-      const LoginPath = PageEnum.BASE_LOGIN;
       if (ResultEnum.SUCCESS === code) {
         return result;
       }
