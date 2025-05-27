@@ -1,24 +1,9 @@
 <template>
   <n-layout class="layout" :position="fixedMenu" has-sider>
-    <!-- <n-layout-sider
-      v-if="
-        !isMobile && isMixMenuNoneSub && (navMode === 'vertical' || navMode === 'horizontal-mix')
-      "
-      show-trigger="bar"
-      @collapse="collapsed = true"
-      :position="fixedMenu"
-      @expand="collapsed = false"
-      :collapsed="collapsed"
-      collapse-mode="width"
-      :collapsed-width="64"
-      :width="leftMenuWidth"
-      :native-scrollbar="false"
-      :inverted="inverted"
-      class="layout-sider"
-    >
-      <Logo :collapsed="collapsed" />
-      <AsideMenu v-model:collapsed="collapsed" v-model:location="getMenuLocation" />
-    </n-layout-sider> -->
+    <!-- 原侧边菜单位置 -->
+    <n-layout-sider v-if="!isMobile" :width="300" :native-scrollbar="false" class="layout-sider">
+      <ChatWindow />
+    </n-layout-sider>
 
     <n-drawer
       v-model:show="showSideDrawer"
@@ -84,6 +69,7 @@
   import { MainView } from './components/Main';
   import { AsideMenu } from './components/Menu';
   import { PageHeader } from './components/Header';
+  import { ChatWindow } from '@/components/ChatWindow';
   import { useProjectSetting } from '@/hooks/setting/useProjectSetting';
   import { useDesignSetting } from '@/hooks/setting/useDesignSetting';
   import { useRoute } from 'vue-router';
