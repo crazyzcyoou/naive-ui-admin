@@ -2,9 +2,17 @@ import { Alova } from '@/utils/http/alova/index';
 
 export interface DemandItem {
   id: number;
-  name: string;
-  status: number;
-  progress: number;
+  demand_txt: string;
+  work_location: string;
+  attendance?: string;
+  create_time?: string;
+  update_time?: string;
+  resume_count?: number;
+  japanese_level?: string;
+  english_level?: string;
+  citizenship?: string;
+  price?: string | number;
+  toggle?: number | boolean;
   [key: string]: any;
 }
 

@@ -2,10 +2,20 @@ import { h } from 'vue';
 import { NProgress, NTag } from 'naive-ui';
 import { BasicColumn } from '@/components/Table';
 import type { DemandItem } from '@/api/demandSupply/demand';
-export const columns = [
-  { title: 'ID',  key: 'id', width: 80 },
-  { title: '需求内容', key: 'demand_txt', ellipsis: { tooltip: true } },
+
+export const columns: BasicColumn<DemandItem>[] = [
+  { title: 'ID', key: 'id', width: 80 },
+  { title: '需求描述', key: 'demand_txt', ellipsis: { tooltip: true } },
   { title: '工作地点', key: 'work_location', width: 120 },
+  { title: '出勤/(在宅+出勤)', key: 'attendance' },
+  { title: '创建时间', key: 'create_time', width: 180 },
+  { title: '更新时间', key: 'update_time', width: 180 },
+  { title: '简历数量', key: 'resume_count' },
+  { title: '日语', key: 'japanese_level' },
+  { title: '英语', key: 'english_level' },
+  { title: '国籍', key: 'citizenship' },
+  { title: '价格', key: 'price' },
+  { title: '无效', key: 'toggle' },
 ];
 // export const columns: BasicColumn<DemandItem>[] = [
 //   {
