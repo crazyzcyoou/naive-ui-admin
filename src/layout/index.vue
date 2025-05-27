@@ -1,6 +1,6 @@
 <template>
   <n-layout class="layout" :position="fixedMenu" has-sider>
-    <n-layout-sider
+    <!-- <n-layout-sider
       v-if="
         !isMobile && isMixMenuNoneSub && (navMode === 'vertical' || navMode === 'horizontal-mix')
       "
@@ -18,7 +18,7 @@
     >
       <Logo :collapsed="collapsed" />
       <AsideMenu v-model:collapsed="collapsed" v-model:location="getMenuLocation" />
-    </n-layout-sider>
+    </n-layout-sider> -->
 
     <n-drawer
       v-model:show="showSideDrawer"

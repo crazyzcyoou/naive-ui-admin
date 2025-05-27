@@ -1,12 +1,10 @@
 <template>
   <n-card :bordered="false" class="proCard">
     <BasicTable
-      title="Demand 列表"
       :columns="columns"
       :request="loadDataTable"
       :row-key="(row) => row.id"
       ref="actionRef"
-      :scroll-x="800"
     >
       <template #tableTitle>
         <n-button type="primary" @click="openAdd">
@@ -33,9 +31,25 @@ const params = reactive({
   pageSize: 10,
 });
 
+
+
 const loadDataTable = async (res) => {
-  return await getDemandList({ ...params, ...res });
+  // 从后端获取数据
+  const data = await getDemandList({ ...params, ...res });
+
+  // 解构拿到必要字段，避免 data.xxx 重复书写
+  const { items = [], page = 1, total = 0 } = data;
+
+  // 拼装表格所需的数据结构
+  return {
+    list: items,
+    page: page,
+    itemCount: total,
+    pageCount: Math.ceil(total / params.pageSize),
+    pageSize: params.pageSize,
+  };
 };
+
 
 function openAdd() {
   addRef.value.openModal();

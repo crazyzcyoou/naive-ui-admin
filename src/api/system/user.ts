@@ -15,12 +15,17 @@ export function getUserInfo() {
  * @description: 用户登录
  */
 export function login(params) {
+  const body = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) =>
+    body.append(key, String(value))
+  );
   return Alova.Post<InResult>(
     '/v1/user/login',
+    body,
     {
-      params,
-    },
-    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
       meta: {
         isReturnNativeResponse: true,
       },

@@ -41,11 +41,12 @@
           </n-form-item>
           <n-form-item class="default-color">
             <div class="flex justify-between">
-              <div class="flex-initial">
-                <n-checkbox v-model:checked="autoLogin">自动登录</n-checkbox>
-              </div>
-              <div class="flex-initial order-last">
+
+              <div class="flex-initial order-last mx-5">
                 <a href="javascript:">忘记密码</a>
+              </div>
+              <div class="flex-initial mx-5" style="margin-left: auto">
+                <a href="javascript:">注册账号</a>
               </div>
             </div>
           </n-form-item>
@@ -53,30 +54,6 @@
             <n-button type="primary" @click="handleSubmit" size="large" :loading="loading" block>
               登录
             </n-button>
-          </n-form-item>
-          <n-form-item class="default-color">
-            <div class="flex view-account-other">
-              <div class="flex-initial">
-                <span>其它登录方式</span>
-              </div>
-              <div class="flex-initial mx-2">
-                <a href="javascript:">
-                  <n-icon size="24" color="#2d8cf0">
-                    <LogoGithub />
-                  </n-icon>
-                </a>
-              </div>
-              <div class="flex-initial mx-2">
-                <a href="javascript:">
-                  <n-icon size="24" color="#2d8cf0">
-                    <LogoFacebook />
-                  </n-icon>
-                </a>
-              </div>
-              <div class="flex-initial" style="margin-left: auto">
-                <a href="javascript:">注册账号</a>
-              </div>
-            </div>
           </n-form-item>
         </n-form>
       </div>

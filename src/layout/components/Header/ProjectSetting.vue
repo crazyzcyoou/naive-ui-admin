@@ -40,7 +40,7 @@
           </span>
         </div>
 
-        <n-divider title-placement="center">导航栏模式</n-divider>
+        <!-- <n-divider title-placement="center">导航栏模式</n-divider>
 
         <div class="drawer-setting-item align-items-top">
           <div class="drawer-setting-item-style align-items-top">
@@ -84,9 +84,9 @@
             </n-tooltip>
             <n-badge dot color="#19be6b" v-show="settingStore.navMode === 'horizontal-mix'" />
           </div>
-        </div>
+        </div> -->
 
-        <n-divider title-placement="center">导航栏风格</n-divider>
+        <!-- <n-divider title-placement="center">导航栏风格</n-divider>
 
         <div class="drawer-setting-item align-items-top">
           <div class="drawer-setting-item-style align-items-top">
@@ -115,9 +115,9 @@
               <span>白色侧边栏</span>
             </n-tooltip>
             <n-badge dot color="#19be6b" v-if="settingStore.navTheme === 'light'" />
-          </div>
+          </div> -->
 
-          <div class="drawer-setting-item-style">
+          <!-- <div class="drawer-setting-item-style">
             <n-tooltip placement="top">
               <template #trigger>
                 <img
@@ -130,7 +130,7 @@
             </n-tooltip>
             <n-badge dot color="#19be6b" v-if="settingStore.navTheme === 'header-dark'" />
           </div>
-        </div>
+        </div> -->
         <n-divider title-placement="center">界面功能</n-divider>
 
         <div class="drawer-setting-item">
@@ -259,7 +259,7 @@
         title: props.title,
         isDrawer: false,
         placement: 'right',
-        alertText: '该功能主要实时预览各种布局效果，更多完整配置在 projectSetting.ts 中设置',
+        alertText: '',
         appThemeList: designStore.appThemeList,
       });
 

@@ -67,10 +67,10 @@ export const useUserStore = defineStore({
       const { result, code } = response;
       if (code === ResultEnum.SUCCESS) {
         const ex = 7 * 24 * 60 * 60;
-        storage.set(ACCESS_TOKEN, result.token, ex);
+        storage.set(ACCESS_TOKEN, result.access_token, ex);
         storage.set(CURRENT_USER, result, ex);
         storage.set(IS_SCREENLOCKED, false);
-        this.setToken(result.token);
+        this.setToken(result.access_token);
         this.setUserInfo(result);
       }
       return response;
@@ -80,13 +80,14 @@ export const useUserStore = defineStore({
     async getInfo() {
       const data = await getUserInfoApi();
       const { result } = data;
-      if (result.permissions && result.permissions.length) {
-        const permissionsList = result.permissions;
-        this.setPermissions(permissionsList);
-        this.setUserInfo(result);
-      } else {
-        throw new Error('getInfo: permissionsList must be a non-null array !');
-      }
+      // TODO
+      // if (result.permissions && result.permissions.length) {
+      //   const permissionsList = result.permissions;
+      //   this.setPermissions(permissionsList);
+      //   this.setUserInfo(result);
+      // } else {
+      //   throw new Error('getInfo: permissionsList must be a non-null array !');
+      // }
       this.setAvatar(result.avatar);
       return result;
     },

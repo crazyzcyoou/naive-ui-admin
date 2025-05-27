@@ -13,13 +13,13 @@ export function getSupplyList(params?) {
 }
 
 export function updateResume(id: number, params: Partial<ResumeItem>) {
-  return Alova.Post(`/v1/supply/update/${id}`, { params });
+  return Alova.Post(`/supply/update/${id}`, { params });
 }
 
 export function toggleResume(id: number) {
-  return Alova.Post(`/v1/supply/toggle/${id}`);
+  return Alova.Post(`/supply/toggle/${id}`);
 }
 
 export function uploadResume(params: Record<string, any>) {
-  return Alova.Post('/v1/supply/upload', { params });
+  return Alova.Post('/supply/upload', { params });
 }

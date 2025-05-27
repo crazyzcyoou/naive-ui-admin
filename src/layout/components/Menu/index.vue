@@ -1,5 +1,5 @@
 <template>
-  <NMenu
+  <!-- <NMenu
     :options="menus"
     :inverted="inverted"
     :mode="mode"
@@ -11,7 +11,7 @@
     :value="getSelectedKeys"
     @update:value="clickMenuItem"
     @update:expanded-keys="menuExpanded"
-  />
+  /> -->
 </template>
 
 <script lang="ts">

@@ -19,7 +19,7 @@
     <!--左侧菜单-->
     <div class="layout-header-left" v-else>
       <!-- 菜单收起 -->
-      <div
+      <!-- <div
         class="ml-1 layout-header-trigger layout-header-trigger-min"
         @click="handleMenuCollapsed"
       >
@@ -29,7 +29,7 @@
         <n-icon size="18" v-else>
           <MenuFoldOutlined />
         </n-icon>
-      </div>
+      </div> -->
       <!-- 刷新 -->
       <div
         class="mr-1 layout-header-trigger layout-header-trigger-min"
@@ -72,7 +72,7 @@
       </n-breadcrumb>
     </div>
     <div class="layout-header-right">
-      <div
+      <!-- <div
         class="layout-header-trigger layout-header-trigger-min"
         v-for="item in iconList"
         :key="item.icon"
@@ -85,7 +85,7 @@
           </template>
           <span>{{ item.tips }}</span>
         </n-tooltip>
-      </div>
+      </div> -->
       <!--切换全屏-->
       <div class="layout-header-trigger layout-header-trigger-min">
         <n-tooltip placement="bottom">
