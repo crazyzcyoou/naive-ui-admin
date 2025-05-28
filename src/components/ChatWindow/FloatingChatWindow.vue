@@ -126,6 +126,9 @@ const windowStyle = computed(() => {
   };
 
   if (isDocked.value) {
+    // 计算可用的窗口高度，减去可能的浏览器界面元素
+    const availableHeight = window.innerHeight;
+
     switch (dockedPosition.value) {
       case 'left':
         return {
@@ -133,13 +136,11 @@ const windowStyle = computed(() => {
           position: 'fixed',
           left: '0',
           top: '0',
-          bottom: '0',
-          height: '100vh',
+          height: `${availableHeight}px`,
           width: '350px',
           borderRadius: '0 12px 12px 0',
           borderLeft: 'none',
-          maxHeight: '100vh',
-          minHeight: '100vh',
+          maxHeight: `${availableHeight}px`,
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column'
@@ -150,13 +151,11 @@ const windowStyle = computed(() => {
           position: 'fixed',
           right: '0',
           top: '0',
-          bottom: '0',
-          height: '100vh',
+          height: `${availableHeight}px`,
           width: '350px',
           borderRadius: '12px 0 0 12px',
           borderRight: 'none',
-          maxHeight: '100vh',
-          minHeight: '100vh',
+          maxHeight: `${availableHeight}px`,
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column'
@@ -427,9 +426,6 @@ onUnmounted(() => {
 .chat-window.docked {
   border-radius: 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  height: 100vh !important;
-  max-height: 100vh !important;
-  min-height: 100vh !important;
   top: 0 !important;
   bottom: 0 !important;
   margin: 0 !important;
@@ -518,9 +514,6 @@ onUnmounted(() => {
   position: fixed !important;
   top: 0 !important;
   bottom: 0 !important;
-  height: 100vh !important;
-  min-height: 100vh !important;
-  max-height: 100vh !important;
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
