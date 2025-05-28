@@ -126,8 +126,8 @@ const windowStyle = computed(() => {
   };
 
   if (isDocked.value) {
-    // 计算可用的窗口高度，减去可能的浏览器界面元素
-    const availableHeight = window.innerHeight;
+    // 计算可用的窗口高度，减去一些安全边距
+    const availableHeight = Math.min(window.innerHeight - 20, 800); // 最大800px，减去20px安全边距
 
     switch (dockedPosition.value) {
       case 'left':
@@ -135,7 +135,7 @@ const windowStyle = computed(() => {
           ...baseStyle,
           position: 'fixed',
           left: '0',
-          top: '0',
+          top: '10px', // 添加顶部边距
           height: `${availableHeight}px`,
           width: '350px',
           borderRadius: '0 12px 12px 0',
@@ -150,7 +150,7 @@ const windowStyle = computed(() => {
           ...baseStyle,
           position: 'fixed',
           right: '0',
-          top: '0',
+          top: '10px', // 添加顶部边距
           height: `${availableHeight}px`,
           width: '350px',
           borderRadius: '12px 0 0 12px',
@@ -426,8 +426,6 @@ onUnmounted(() => {
 .chat-window.docked {
   border-radius: 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  top: 0 !important;
-  bottom: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
   box-sizing: border-box !important;
@@ -511,9 +509,6 @@ onUnmounted(() => {
 
 /* 专门针对停靠模式的强制样式重置 */
 .floating-chat-window.docked {
-  position: fixed !important;
-  top: 0 !important;
-  bottom: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
