@@ -149,4 +149,5 @@ onMounted(() => {
 });
 </script>
 
-<style scoped src="./demand-supply.css"></style>
+<style scoped src="../demand-supply.css"></style>
+

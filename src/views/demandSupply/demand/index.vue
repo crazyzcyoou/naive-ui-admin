@@ -57,4 +57,5 @@ onMounted(() => {
 </script>
 
 <!-- 把路径指向上一级目录 -->
-<style scoped src="./demand-supply.css"></style>
+<style scoped src="../demand-supply.css"></style>
+
