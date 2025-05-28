@@ -12,12 +12,12 @@
 
     <!-- 全局悬浮聊天窗口 -->
     <FloatingChatWindow
-      v-if="$route.name !== 'login'"
+      v-if="$route.name !== 'Login'"
       @dock-change="handleChatDockChange"
     />
   </NConfigProvider>
 
-  <transition v-if="isLock && $route.name !== 'login'" name="slide-up">
+  <transition v-if="isLock && $route.name !== 'Login'" name="slide-up">
     <LockScreen />
   </transition>
 </template>
@@ -79,7 +79,7 @@
 
   const timekeeping = () => {
     clearInterval(timer);
-    if (route.name == 'login' || isLock.value) return;
+    if (route.name == 'Login' || isLock.value) return;
     // 设置不锁屏
     useScreenLock.setLock(false);
     // 重置锁屏时间

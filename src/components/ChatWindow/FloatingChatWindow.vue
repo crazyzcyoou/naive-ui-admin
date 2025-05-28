@@ -8,7 +8,7 @@
       @click="toggleMinimize"
       @mousedown="startDrag"
     >
-      <n-icon size="24" color="#fff">
+      <n-icon size="24" :color="textColor">
         <MessageOutlined />
       </n-icon>
       <div v-if="unreadCount > 0" class="unread-badge">{{ unreadCount }}</div>
@@ -62,20 +62,42 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
-import { NIcon, NButton, NDropdown } from 'naive-ui';
+import { NIcon, NButton, NDropdown, useThemeVars } from 'naive-ui';
 import { MessageOutlined, CloseOutlined, SettingOutlined } from '@vicons/antd';
 import ChatWindow from './index.vue';
 import { useDesignSettingStore } from '@/store/modules/designSetting';
 
 // 状态管理
-const isMinimized = ref(true); // 默认最小化状态
-const isDocked = ref(false);
-const dockedPosition = ref<'left' | 'right' | 'float'>('float');
+const isMinimized = ref(false); // 默认展开状态，不再最小化
+const isDocked = ref(true); // 默认停靠状态
+const dockedPosition = ref<'left' | 'right' | 'float'>('left'); // 默认停靠在左侧
 const unreadCount = ref(0);
 
 // 主题设置
 const designSettingStore = useDesignSettingStore();
-const themeColor = computed(() => designSettingStore.appTheme);
+const themeVars = useThemeVars();
+
+// 获取边框颜色 - 根据主题模式动态设置
+const borderColor = computed(() => {
+  // 在深色模式下使用黑色边框，浅色模式下使用白色边框
+  return designSettingStore.darkTheme
+    ? '#000000' // 夜晚模式：黑色边框
+    : '#ffffff'; // 白天模式：白色边框
+});
+
+// 获取聊天助手背景颜色 - 根据主题模式动态设置
+const chatBackgroundColor = computed(() => {
+  return designSettingStore.darkTheme
+    ? '#333333' // 夜晚模式：深灰色背景
+    : '#f0f0f0'; // 白天模式：浅灰色背景
+});
+
+// 获取文字颜色 - 根据主题模式动态设置
+const textColor = computed(() => {
+  return designSettingStore.darkTheme
+    ? '#ffffff' // 夜晚模式：白色文字
+    : '#000000'; // 白天模式：黑色文字
+});
 
 // 定义事件发射器
 const emit = defineEmits<{
@@ -107,13 +129,15 @@ const iconStyle = computed(() => {
   return {
     left: `${position.value.x}px`,
     top: `${position.value.y}px`,
-    background: `linear-gradient(135deg, ${themeColor.value} 0%, ${themeColor.value}dd 100%)`
+    background: chatBackgroundColor.value,
+    color: textColor.value
   };
 });
 
 const headerStyle = computed(() => {
   return {
-    background: `linear-gradient(135deg, ${themeColor.value} 0%, ${themeColor.value}dd 100%)`
+    background: chatBackgroundColor.value,
+    color: textColor.value
   };
 });
 
@@ -121,13 +145,13 @@ const headerStyle = computed(() => {
 
 const windowStyle = computed(() => {
   const baseStyle = {
-    border: `2px solid ${themeColor.value}`,
+    border: `3px solid ${borderColor.value}`,
     zIndex: '1000'
   };
 
   if (isDocked.value) {
-    // 计算可用的窗口高度，减去一些安全边距
-    const availableHeight = Math.min(window.innerHeight - 20, 800); // 最大800px，减去20px安全边距
+    // 计算可用的窗口高度，停靠模式下使用完整高度与供求关系界面对齐
+    const availableHeight = window.innerHeight; // 使用完整窗口高度，与供求关系界面对齐
 
     switch (dockedPosition.value) {
       case 'left':
@@ -135,12 +159,11 @@ const windowStyle = computed(() => {
           ...baseStyle,
           position: 'fixed',
           left: '0',
-          top: '10px', // 添加顶部边距
+          top: '0', // 移除顶部边距，让聊天框贴顶
           height: `${availableHeight}px`,
           width: '350px',
           borderRadius: '0 6px 6px 0', /* 从12px改为6px */
           borderLeft: 'none',
-          maxHeight: `${availableHeight}px`,
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column'
@@ -150,12 +173,11 @@ const windowStyle = computed(() => {
           ...baseStyle,
           position: 'fixed',
           right: '0',
-          top: '10px', // 添加顶部边距
+          top: '0', // 移除顶部边距，让聊天框贴顶
           height: `${availableHeight}px`,
           width: '350px',
           borderRadius: '6px 0 0 6px', /* 从12px改为6px */
           borderRight: 'none',
-          maxHeight: `${availableHeight}px`,
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column'
@@ -194,6 +216,15 @@ const handleClose = () => {
     // 如果是停靠状态，点击X回到悬浮状态
     isDocked.value = false;
     dockedPosition.value = 'float';
+
+    // 设置悬浮窗位置为屏幕中间
+    const centerX = (window.innerWidth - 280) / 2; // 280是悬浮窗宽度
+    const centerY = (window.innerHeight - 380) / 2; // 380是悬浮窗高度
+    position.value = {
+      x: Math.max(20, Math.min(window.innerWidth - 300, centerX)), // 确保不超出边界
+      y: Math.max(20, Math.min(window.innerHeight - 400, centerY)) // 确保不超出边界
+    };
+
     // 发射停靠状态变化事件
     emit('dock-change', {
       isDocked: false,
@@ -315,9 +346,9 @@ const loadSettings = () => {
   if (saved) {
     try {
       const settings = JSON.parse(saved);
-      isMinimized.value = settings.isMinimized !== undefined ? settings.isMinimized : true;
-      isDocked.value = settings.isDocked || false;
-      dockedPosition.value = settings.dockedPosition || 'float';
+      isMinimized.value = settings.isMinimized !== undefined ? settings.isMinimized : false; // 默认展开
+      isDocked.value = settings.isDocked !== undefined ? settings.isDocked : true; // 默认停靠
+      dockedPosition.value = settings.dockedPosition || 'left'; // 默认左侧
 
       // 验证保存的位置是否在当前屏幕范围内
       if (settings.position) {
@@ -346,8 +377,30 @@ const loadSettings = () => {
       }
     } catch (e) {
       console.error('Failed to load chat window settings:', e);
+      // 出错时也使用默认的停靠左侧状态
+      isMinimized.value = false;
+      isDocked.value = true;
+      dockedPosition.value = 'left';
       position.value = getInitialPosition();
+
+      emit('dock-change', {
+        isDocked: true,
+        position: 'left',
+        width: 350
+      });
     }
+  } else {
+    // 没有保存的设置时，使用默认的停靠左侧状态
+    // 确保状态正确设置
+    isMinimized.value = false;
+    isDocked.value = true;
+    dockedPosition.value = 'left';
+
+    emit('dock-change', {
+      isDocked: true,
+      position: 'left',
+      width: 350
+    });
   }
 };
 
@@ -481,10 +534,12 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 17px 16px; /* 增加2px高度：从16px改为17px */
   color: white;
   cursor: move;
   user-select: none;
+  min-height: 58px; /* 增加2px高度：从56px改为58px */
+  box-sizing: border-box;
 }
 
 .chat-title {
@@ -570,13 +625,13 @@ onUnmounted(() => {
 .floating-chat-window.docked-left {
   left: 0 !important;
   right: auto !important;
-  border-right: 2px solid var(--primary-color) !important;
+  border-right: 2px solid v-bind(borderColor) !important;
 }
 
 .floating-chat-window.docked-right {
   right: 0 !important;
   left: auto !important;
-  border-left: 2px solid var(--primary-color) !important;
+  border-left: 2px solid v-bind(borderColor) !important;
 }
 
 .mr-2 {
