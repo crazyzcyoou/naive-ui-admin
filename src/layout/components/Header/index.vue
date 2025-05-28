@@ -48,7 +48,7 @@
         >
           <n-breadcrumb-item v-if="routeItem.meta.title && !routeItem.meta.hideBreadcrumb">
             <n-dropdown
-              v-if="routeItem.children.length"
+              v-if="routeItem.children && routeItem.children.length"
               :options="routeItem.children"
               @select="dropdownSelect"
             >
@@ -60,7 +60,12 @@
                 {{ routeItem.meta.title }}
               </span>
             </n-dropdown>
-            <span class="link-text" v-else>
+            <span
+              class="link-text"
+              v-else
+              :class="{ 'clickable-breadcrumb': routeItem.name !== route.name }"
+              @click="handleBreadcrumbClick(routeItem)"
+            >
               <component
                 v-if="crumbsSetting.showIcon && routeItem.meta.icon"
                 :is="routeItem.meta.icon"
@@ -205,11 +210,16 @@
             label: item.meta.title,
             key: item.name,
             disabled: item.path === '/',
+            children: undefined, // 明确设置为 undefined
           };
           // 是否有子菜单，并递归处理
           if (item.children && item.children.length > 0) {
-            // Recursion
-            currentMenu.children = generator(item.children, currentMenu);
+            // 过滤掉隐藏的子路由
+            const visibleChildren = item.children.filter(child => !child.meta?.hideInMenu);
+            if (visibleChildren.length > 0) {
+              // Recursion
+              currentMenu.children = generator(visibleChildren, currentMenu);
+            }
           }
           return currentMenu;
         });
@@ -221,6 +231,13 @@
 
       const dropdownSelect = (key) => {
         router.push({ name: key });
+      };
+
+      // 面包屑点击处理
+      const handleBreadcrumbClick = (routeItem) => {
+        if (routeItem.name !== route.name) {
+          router.push({ name: routeItem.name });
+        }
       };
 
       // 刷新页面
@@ -335,6 +352,7 @@
         doLogout,
         route,
         dropdownSelect,
+        handleBreadcrumbClick,
         avatarOptions,
         getChangeStyle,
         avatarSelect,
@@ -396,6 +414,15 @@
 
       .n-breadcrumb {
         display: inline-block;
+      }
+
+      .clickable-breadcrumb {
+        cursor: pointer;
+        color: #000;
+
+        &:hover {
+          color: #000;
+        }
       }
 
       &-menu {

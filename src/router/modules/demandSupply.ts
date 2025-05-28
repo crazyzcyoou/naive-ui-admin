@@ -13,7 +13,6 @@ const routes: Array<RouteRecordRaw> = [
       title: '需求列表',
       icon: renderIcon(TableOutlined),
       sort: 9,
-      alwaysShow: true,
     },
     children: [
       {
@@ -22,13 +21,17 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '需求列表',
           hideBreadcrumb: true,
+          hideInMenu: true,
         },
         component: () => import('@/views/demandSupply/demand/index.vue'),
       },
       {
         path: 'supply',
         name: 'supply',
-        meta: { title: '简历列表' },
+        meta: {
+          title: '简历列表',
+          hideInMenu: true,
+        },
         component: () => import('@/views/demandSupply/supply/index.vue'),
       },
     ],
