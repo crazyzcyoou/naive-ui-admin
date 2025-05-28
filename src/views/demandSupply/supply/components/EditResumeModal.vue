@@ -1,63 +1,114 @@
 <template>
-  <basicModal @register="modalRegister" ref="modalRef" @on-ok="okModal">
-    <div class="pt-8">
-      <BasicForm @register="registerForm" />
+  <!-- 弹窗本体 -->
+  <basicModal
+    @register="modalRegister"
+    @on-ok="handleOk"          
+  >
+    <div class="pt-2 space-y-4">
+      <!-- 国籍 -->
+      <n-form-item label="国籍" path="citizenship">
+        <n-input
+          v-model:value="formData.citizenship"
+          placeholder="请输入国籍"
+        />
+      </n-form-item>
+      <n-input
+        v-model:value="formData.price"
+        placeholder="请输入单价/万円"
+      />
+      <n-input
+        v-model:value="formData.nearest_station"
+        placeholder="最近车站"
+      />
+      <!-- 日语等级 -->
+      <n-select
+        v-model:value="formData.japanese_level"
+        :options="japaneseLevelStatusOptions"
+      />
+      <!-- 英语等级 -->
+      <n-select
+        v-model:value="formData.english_level"
+        :options="englishLevelStatusOptions"
+      />
+      <n-input
+        v-model:value="formData.belonging_suppliers"
+        placeholder="所属供应商"
+      />
     </div>
   </basicModal>
 </template>
 
-<script lang="ts" setup>
-import { FormSchema, useForm } from '@/components/Form';
-import { basicModal, useModal } from '@/components/Modal';
+<script setup lang="ts">
+import { reactive } from 'vue';
+import { useModal } from '@/components/Modal';
+// import { updateResume } from '@/api/demandSupply/supply';
 
-const schemas: FormSchema[] = [
-  {
-    field: 'name',
-    component: 'NInput',
-    label: '姓名',
-    rules: [{ required: true, message: '请输入姓名', trigger: ['blur'] }],
-  },
-  {
-    field: 'status',
-    component: 'NSelect',
-    label: '状态',
-    componentProps: {
-      options: [
-        { label: '待联系', value: 0 },
-        { label: '已联系', value: 1 },
-      ],
-    },
-  },
+const japaneseLevelStatusOptions = [
+  { label: 'ネイティプ(100%)', value: 'ネイティプ(100%)' },
+  { label: 'ビジネスレベル(95%)', value: 'ビジネスレベル(95%)' },
+  { label: 'かなり流暢(90%)', value: 'かなり流暢(90%)' },
+  { label: '流暢(80%)', value: '流暢(80%)' },
+  { label: '汪ぼ流畅(70%)', value: '汪ぼ流畅(70%)' },
+  { label: 'たいてい流暢(60%)', value: 'たいてい流暢(60%)' },
+  { label: '普通(50%)', value: '普通(50%)' },
+  { label: '微妙(40%)', value: '微妙(40%)' },
+  { label: '不得意(30%)', value: '不得意(30%)' },
+  { label: '初心者(20%)', value: '初心者(20%)' },
 ];
 
-const [registerForm, { submit, setFieldsValue }] = useForm({
-  gridProps: { cols: 1 },
-  labelWidth: 80,
-  layout: 'horizontal',
-  showActionButtonGroup: false,
-  schemas,
+const englishLevelStatusOptions = [
+  { label: '英语A1', value: '英语A1' },
+  { label: '英语A2', value: '英语A2' },
+  { label: '英语B1', value: '英语B1' },
+  { label: '英语B2', value: '英语B2' },
+  { label: '英语C1', value: '英语C1' },
+  { label: '英语C2', value: '英语C2' },
+];
+
+/* ---------------- 数据 & 校验 ---------------- */
+const formData = reactive({
+  id: undefined as number | undefined,
+  citizenship: '',
+  price: 0,
+  nearest_station: 0,
+  work_percent: 0,
+  japanese_level: '',
+  english_level: '',
+  belonging_suppliers: '',
 });
 
-const [modalRegister, { openModal, closeModal, setSubLoading }] = useModal({
-  title: '编辑简历',
-  subBtuText: '保存',
+
+/* ---------------- Modal 逻辑 ---------------- */
+const [
+    modalRegister,
+    { openModal: innerOpenModal, closeModal, setSubLoading },
+  ] = useModal({
+    title: '编辑',
+    subBtuText: '保存',
 });
 
-function show(record: any) {
-  openModal();
-  setFieldsValue(record);
+// 暴露给父组件：带入当前行供回显
+function openModal(record?: Record<string, any>) {
+  Object.assign(formData, {
+    id: record?.id,
+    name: record?.name ?? '',
+    status: record?.status ?? 0,
+  });
+  innerOpenModal();
 }
+defineExpose({ openModal });
 
-async function okModal() {
-  const res = await submit();
-  if (res) {
+/* ---------------- 保存 ---------------- */
+async function handleOk() {
+
+  setSubLoading(true);
+  try {
+    await updateResume(formData);       // ❷ 走 POST
+    window.$message?.success('保存成功');
     closeModal();
-  } else {
+  } catch (e) {
+    window.$message?.error('保存失败');
     setSubLoading(false);
   }
 }
-
-defineExpose({ show });
 </script>
-
-<style scoped></style>
