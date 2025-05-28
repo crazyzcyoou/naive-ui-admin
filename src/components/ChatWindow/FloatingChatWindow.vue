@@ -136,7 +136,9 @@ const windowStyle = computed(() => {
           height: '100vh',
           width: '350px',
           borderRadius: '0 12px 12px 0',
-          borderLeft: 'none'
+          borderLeft: 'none',
+          maxHeight: '100vh',
+          overflow: 'hidden'
         };
       case 'right':
         return {
@@ -147,7 +149,9 @@ const windowStyle = computed(() => {
           height: '100vh',
           width: '350px',
           borderRadius: '12px 0 0 12px',
-          borderRight: 'none'
+          borderRight: 'none',
+          maxHeight: '100vh',
+          overflow: 'hidden'
         };
       default:
         return {
@@ -415,6 +419,9 @@ onUnmounted(() => {
 .chat-window.docked {
   border-radius: 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  height: 100vh !important;
+  max-height: 100vh;
+  min-height: 100vh;
 }
 
 .chat-window.docked-left {
@@ -455,6 +462,26 @@ onUnmounted(() => {
 .chat-content {
   flex: 1;
   overflow: hidden;
+  min-height: 0; /* 确保flex子元素能够正确收缩 */
+}
+
+/* 停靠模式下的聊天内容区域 */
+.chat-window.docked .chat-content {
+  flex: 1;
+  overflow: hidden;
+  height: auto;
+}
+
+/* 确保停靠模式下没有多余的边距和填充 */
+.chat-window.docked {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 确保聊天窗口内容完全填充 */
+.chat-window.docked > * {
+  box-sizing: border-box;
 }
 
 .mr-2 {
