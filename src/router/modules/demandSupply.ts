@@ -10,15 +10,19 @@ const routes: Array<RouteRecordRaw> = [
     component: Layout,
     redirect: '/demand-supply/demand',
     meta: {
-      title: '供需关系',
+      title: '需求列表',
       icon: renderIcon(TableOutlined),
       sort: 9,
+      alwaysShow: true,
     },
     children: [
       {
         path: 'demand',
         name: 'demand',
-        meta: { title: '需求列表' },
+        meta: {
+          title: '需求列表',
+          hideBreadcrumb: true,
+        },
         component: () => import('@/views/demandSupply/demand/index.vue'),
       },
       {
