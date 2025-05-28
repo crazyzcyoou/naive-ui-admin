@@ -147,8 +147,13 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-height: 100%;
+    max-height: 100%;
     padding: 0;
+    margin: 0;
     background-color: #f9f9f9;
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .history {
@@ -165,10 +170,13 @@
 
   .input-container {
     padding: 12px;
+    margin: 0;
     background-color: #fff;
     border-top: 1px solid #eaeaea;
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
+    box-sizing: border-box;
   }
 
   .chat-input {

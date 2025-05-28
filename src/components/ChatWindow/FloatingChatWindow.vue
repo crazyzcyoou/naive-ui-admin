@@ -133,12 +133,16 @@ const windowStyle = computed(() => {
           position: 'fixed',
           left: '0',
           top: '0',
+          bottom: '0',
           height: '100vh',
           width: '350px',
           borderRadius: '0 12px 12px 0',
           borderLeft: 'none',
           maxHeight: '100vh',
-          overflow: 'hidden'
+          minHeight: '100vh',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         };
       case 'right':
         return {
@@ -146,12 +150,16 @@ const windowStyle = computed(() => {
           position: 'fixed',
           right: '0',
           top: '0',
+          bottom: '0',
           height: '100vh',
           width: '350px',
           borderRadius: '12px 0 0 12px',
           borderRight: 'none',
           maxHeight: '100vh',
-          overflow: 'hidden'
+          minHeight: '100vh',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         };
       default:
         return {
@@ -420,8 +428,15 @@ onUnmounted(() => {
   border-radius: 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   height: 100vh !important;
-  max-height: 100vh;
-  min-height: 100vh;
+  max-height: 100vh !important;
+  min-height: 100vh !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .chat-window.docked-left {
@@ -481,7 +496,49 @@ onUnmounted(() => {
 
 /* 确保聊天窗口内容完全填充 */
 .chat-window.docked > * {
-  box-sizing: border-box;
+  box-sizing: border-box !important;
+}
+
+/* 强制移除任何可能的边距和填充 */
+.chat-window.docked,
+.chat-window.docked * {
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* 确保聊天窗口组件本身填充整个容器 */
+.chat-window.docked .chat-window {
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* 专门针对停靠模式的强制样式重置 */
+.floating-chat-window.docked {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.floating-chat-window.docked-left {
+  left: 0 !important;
+  right: auto !important;
+  border-right: 2px solid var(--primary-color) !important;
+}
+
+.floating-chat-window.docked-right {
+  right: 0 !important;
+  left: auto !important;
+  border-left: 2px solid var(--primary-color) !important;
 }
 
 .mr-2 {
