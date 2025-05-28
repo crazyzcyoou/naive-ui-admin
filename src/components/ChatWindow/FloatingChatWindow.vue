@@ -43,8 +43,8 @@
               </n-icon>
             </n-button>
           </n-dropdown>
-          <!-- 最小化按钮 -->
-          <n-button text size="small" @click="toggleMinimize">
+          <!-- 关闭/最小化按钮 -->
+          <n-button text size="small" @click="handleClose">
             <n-icon size="16">
               <CloseOutlined />
             </n-icon>
@@ -54,14 +54,14 @@
 
       <!-- 聊天内容区域 -->
       <div class="chat-content">
-        <ChatWindow />
+        <ChatWindow :is-floating="dockedPosition === 'float'" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { NIcon, NButton, NDropdown } from 'naive-ui';
 import { MessageOutlined, CloseOutlined, SettingOutlined } from '@vicons/antd';
 import ChatWindow from './index.vue';
@@ -138,7 +138,7 @@ const windowStyle = computed(() => {
           top: '10px', // 添加顶部边距
           height: `${availableHeight}px`,
           width: '350px',
-          borderRadius: '0 12px 12px 0',
+          borderRadius: '0 6px 6px 0', /* 从12px改为6px */
           borderLeft: 'none',
           maxHeight: `${availableHeight}px`,
           overflow: 'hidden',
@@ -153,7 +153,7 @@ const windowStyle = computed(() => {
           top: '10px', // 添加顶部边距
           height: `${availableHeight}px`,
           width: '350px',
-          borderRadius: '12px 0 0 12px',
+          borderRadius: '6px 0 0 6px', /* 从12px改为6px */
           borderRight: 'none',
           maxHeight: `${availableHeight}px`,
           overflow: 'hidden',
@@ -166,9 +166,9 @@ const windowStyle = computed(() => {
           position: 'fixed',
           left: `${position.value.x}px`,
           top: `${position.value.y}px`,
-          width: '350px',
-          height: '500px',
-          borderRadius: '12px'
+          width: '280px',
+          height: '380px',
+          borderRadius: '6px' /* 从12px改为6px */
         };
     }
   }
@@ -177,15 +177,43 @@ const windowStyle = computed(() => {
     position: 'fixed',
     left: `${position.value.x}px`,
     top: `${position.value.y}px`,
-    width: '350px',
-    height: '500px',
-    borderRadius: '12px'
+    width: '280px',
+    height: '380px',
+    borderRadius: '6px' /* 从12px改为6px */
   };
 });
 
 // 方法
 const toggleMinimize = () => {
   isMinimized.value = !isMinimized.value;
+  saveSettings();
+};
+
+const handleClose = () => {
+  if (isDocked.value) {
+    // 如果是停靠状态，点击X回到悬浮状态
+    isDocked.value = false;
+    dockedPosition.value = 'float';
+    // 发射停靠状态变化事件
+    emit('dock-change', {
+      isDocked: false,
+      position: 'float',
+      width: 0
+    });
+
+    // 强制触发重新渲染，确保悬浮状态下的按钮可见
+    nextTick(() => {
+      // 触发一个小的位置调整来强制重新渲染
+      const currentX = position.value.x;
+      position.value.x = currentX + 1;
+      nextTick(() => {
+        position.value.x = currentX;
+      });
+    });
+  } else {
+    // 如果是悬浮状态，最小化
+    isMinimized.value = !isMinimized.value;
+  }
   saveSettings();
 };
 
@@ -249,8 +277,8 @@ const onDrag = (e: MouseEvent) => {
   if (!isDragging.value) return;
 
   // 对于聊天图标，使用更宽松的边界限制
-  const elementWidth = isMinimized.value ? 60 : 350;
-  const elementHeight = isMinimized.value ? 60 : 500;
+  const elementWidth = isMinimized.value ? 60 : 280;
+  const elementHeight = isMinimized.value ? 60 : 380;
 
   // 允许拖拽到屏幕边缘，只要元素还有一部分可见
   const minX = -elementWidth + 50; // 允许大部分拖出屏幕，但保留50px可见
@@ -293,8 +321,8 @@ const loadSettings = () => {
 
       // 验证保存的位置是否在当前屏幕范围内
       if (settings.position) {
-        const elementWidth = settings.isMinimized ? 60 : 350;
-        const elementHeight = settings.isMinimized ? 60 : 500;
+        const elementWidth = settings.isMinimized ? 60 : 280;
+        const elementHeight = settings.isMinimized ? 60 : 380;
         const minX = -elementWidth + 50;
         const maxX = window.innerWidth - 50;
         const minY = 0;
@@ -327,8 +355,8 @@ const loadSettings = () => {
 const handleResize = () => {
   if (!isDocked.value) {
     // 确保窗口仍在可见范围内
-    const elementWidth = isMinimized.value ? 60 : 350;
-    const elementHeight = isMinimized.value ? 60 : 500;
+    const elementWidth = isMinimized.value ? 60 : 280;
+    const elementHeight = isMinimized.value ? 60 : 380;
     const minX = -elementWidth + 50;
     const maxX = window.innerWidth - 50;
     const minY = 0;
@@ -411,16 +439,18 @@ onUnmounted(() => {
 
 .chat-window {
   position: fixed;
-  width: 350px;
-  height: 500px;
+  width: 280px;
+  height: 380px;
   background: white;
-  border-radius: 12px;
+  border-radius: 6px; /* 从12px改为6px，更锋利 */
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   pointer-events: auto;
   transition: all 0.3s ease;
+  /* 确保边框内容完全对齐 */
+  box-sizing: border-box;
 }
 
 .chat-window.docked {
@@ -434,14 +464,14 @@ onUnmounted(() => {
 }
 
 .chat-window.docked-left {
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-top-right-radius: 6px; /* 从12px改为6px */
+  border-bottom-right-radius: 6px; /* 从12px改为6px */
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
 }
 
 .chat-window.docked-right {
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
+  border-top-left-radius: 6px; /* 从12px改为6px */
+  border-bottom-left-radius: 6px; /* 从12px改为6px */
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
 }
 
@@ -472,6 +502,26 @@ onUnmounted(() => {
   flex: 1;
   overflow: hidden;
   min-height: 0; /* 确保flex子元素能够正确收缩 */
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  position: relative;
+}
+
+/* 确保内部的 ChatWindow 组件完全填充，没有间隙 */
+.chat-content > * {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 /* 停靠模式下的聊天内容区域 */
