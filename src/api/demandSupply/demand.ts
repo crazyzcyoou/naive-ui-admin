@@ -20,6 +20,10 @@ export function getDemandList(params?) {
   return Alova.Get<{ list: DemandItem[] }>('/v1/match/list_demand', { params });
 }
 
+export function getDemandInfo(id: number) {
+  
+}
+
 export function updateDemand(id: number, params: Partial<DemandItem>) {
   return Alova.Post(`/demand/update/${id}`, { params });
 }

@@ -7,26 +7,27 @@
     @success="reloadTable"
   />
 
-  <!-- 编辑需求弹窗
-  <EditDemandModal ref="editDemandRef" :demand="currentDemand" @success="loadDemandInfo" /> -->
-
-
-  <n-card :bordered="false" class="proCard full-height-table">
+  <n-card :bordered="false" class="proCard">
     <BasicTable
       ref="resumeRef"
-      :columns="resumeColumns"
+      :striped="true"
       :request="loadResume"
+      :columns="resumeColumns"
       :row-key="(row) => row.id"
       :actionColumn="actionColumn"
     >
       <template #tableTitle>
-        <n-button type="primary" @click="openUpload">上传简历</n-button>
-
-        <n-button type="primary" @click="backToDemandList">返回需求列表</n-button>
-
-        <div class="demand-info">
-          <n-tag type="info">当前需求: </n-tag>
-        </div>
+        <n-space>
+          <n-button type="primary" @click="openUpload">
+            <template #icon>
+              <n-icon>
+                <PlusOutlined />
+              </n-icon>
+            </template>
+            新建
+          </n-button>
+          <n-button type="primary" @click="backToDemandList">返回需求列表</n-button>
+        </n-space>
       </template>
     </BasicTable>
   </n-card>
@@ -39,21 +40,20 @@
 import { reactive, ref, onMounted, h } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { BasicTable, TableAction } from '@/components/Table';
-import { NButton, NSpace, NTag, useMessage } from 'naive-ui';
+import { NButton, NSpace, useMessage, useDialog } from 'naive-ui';
 import { getSupplyList, deleteSupply } from '@/api/demandSupply/supply';
-import { getDemandList } from '@/api/demandSupply/demand';
+import { getDemandInfo } from '@/api/demandSupply/demand';
+import { PlusOutlined } from '@vicons/antd';
 import { resumeColumns } from './columns';
 import UploadResumeModal from './components/UploadResumeModal.vue';
 import EditResumeModal from './components/EditResumeModal.vue';
-import EditDemandModal from './components/EditDemandModal.vue';
-
+import { DeleteOutlined, EditOutlined } from '@vicons/antd';
 const route = useRoute();
 const router = useRouter();
 const message = useMessage();
 const resumeRef = ref();
 const uploadRef = ref();
 const editResumeRef = ref();
-const editDemandRef = ref();
 const currentDemand = ref(null);
 
 const resumeParams = reactive({
@@ -63,7 +63,7 @@ const resumeParams = reactive({
 
 // 操作列定义
 const actionColumn = reactive({
-  width: 150,
+  width: 180,
   title: '操作',
   key: 'action',
   fixed: 'right',
@@ -73,10 +73,12 @@ const actionColumn = reactive({
       actions: [
         {
           label: '编辑',
+          icon: EditOutlined,
           onClick: openEditDemand.bind(null, record),
         },
         {
           label: '删除',
+          // 可以根据需要添加确认提示
           onClick: handleDelete.bind(null, record),
         },
       ],
@@ -101,7 +103,7 @@ const loadResume = async (res) => {
 const loadDemandInfo = async () => {
   if (resumeParams.demandId) {
     try {
-      currentDemand.value = await getDemandList(resumeParams.demandId);
+      currentDemand.value = await getDemandInfo(resumeParams.demandId);
     } catch (error) {
       message.error('获取需求信息失败');
     }
@@ -110,19 +112,33 @@ const loadDemandInfo = async () => {
 
 // 打开上传弹窗
 function openUpload() {
+  // if (!resumeParams.demandId) {
+  //   return message.warning('请先选择一个需求');
+  // }
   uploadRef.value.openModal();
 }
 
 // 打开编辑需求弹窗
-function openEditDemand(record) {
+async function openEditDemand(record) {
   editResumeRef.value.openModal();
 }
+
 
 // 删除简历
 async function handleDelete(record) {
   try {
+    dialog.info({
+      title: '提示',
+      content: `您想删除${record.name}`,
+      positiveText: '确定',
+      negativeText: '取消',
+      onPositiveClick: () => {
+        message.success('删除成功');
+        reloadTable();
+      },
+      onNegativeClick: () => {},
+    });
     await deleteSupply(record.id);
-    message.success('删除成功');
     reloadTable();
   } catch (error) {
     message.error('删除失败');

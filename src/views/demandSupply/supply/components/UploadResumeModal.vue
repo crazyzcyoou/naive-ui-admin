@@ -5,7 +5,6 @@
     preset="dialog"
     :mask-closable="false"
     :close-on-esc="false"
-    style="width: 600px"
   >
     <n-form
       ref="formRef"
@@ -20,15 +19,12 @@
           ref="uploadRef"
           multiple
           :default-upload="false"
-          :max="10"
+          :max="1"
           accept=".pdf,.doc,.docx"
           @change="handleUploadChange"
         >
-        <n-button>选择文件</n-button>
+          <n-button>选择文件</n-button>
         </n-upload>
-        <!-- <n-text depth="3" style="margin-top: 8px; display: block">
-          支持PDF、Word格式，最多可上传10个文件
-        </n-text> -->
       </n-form-item>
     </n-form>
     <template #action>

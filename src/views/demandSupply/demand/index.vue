@@ -5,31 +5,35 @@
       :columns="demandColumns"
       :request="loadDataTable"
       :row-key="(row) => row.id"
+      :striped="true"
     >
       <template #tableTitle>
         <n-button type="primary" @click="openAdd">
-          新增需求
+          <template #icon>
+            <n-icon>
+              <PlusOutlined />
+            </n-icon>
+          </template>
+          新建
         </n-button>
       </template>
     </BasicTable>
   </n-card>
-  <AddDemandModal ref="addRef" />
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onMounted } from 'vue';
-import { BasicTable } from '@/components/Table';
-import { NButton } from 'naive-ui';
 import { getDemandList } from '@/api/demandSupply/demand';
+import { BasicTable } from '@/components/Table';
+import { reactive, ref, onMounted } from 'vue';
+import { PlusOutlined } from '@vicons/antd';
 import { demandColumns } from './columns';
-import AddDemandModal from './components/AddDemandModal.vue';
+import { NButton } from 'naive-ui';
 
 const resumeRef = ref();
-const addRef = ref();
-
 const params = reactive({
   pageSize: 10,
 });
+const addRef = ref();
 
 const loadDataTable = async (res) => {
   const data = await getDemandList({ ...params, ...res });
