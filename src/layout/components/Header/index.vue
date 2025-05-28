@@ -46,7 +46,7 @@
           v-for="routeItem in breadcrumbList"
           :key="routeItem.name === RedirectName ? void 0 : routeItem.name"
         >
-          <n-breadcrumb-item v-if="routeItem.meta.title">
+          <n-breadcrumb-item v-if="routeItem.meta.title && !routeItem.meta.hideBreadcrumb">
             <n-dropdown
               v-if="routeItem.children.length"
               :options="routeItem.children"
