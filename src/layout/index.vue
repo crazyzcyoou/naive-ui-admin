@@ -20,7 +20,10 @@
       </n-layout-sider>
     </n-drawer>
 
-    <n-layout :inverted="inverted">
+    <n-layout
+      :inverted="inverted"
+      :style="layoutStyle"
+    >
       <n-layout-header :inverted="getHeaderInverted" :position="fixedHeader">
         <PageHeader v-model:collapsed="collapsed" :inverted="inverted" />
       </n-layout-header>
@@ -28,6 +31,7 @@
       <n-layout-content
         class="layout-content"
         :class="{ 'layout-default-background': getDarkTheme === false }"
+        :style="contentStyle"
       >
         <div
           class="layout-content-main"
@@ -59,7 +63,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, unref, computed, onMounted } from 'vue';
+  import { ref, unref, computed, onMounted, inject } from 'vue';
   import { Logo } from './components/Logo';
   import { TabsView } from './components/TagsView';
   import { MainView } from './components/Main';
@@ -82,6 +86,13 @@
   } = useProjectSetting();
 
   const settingStore = useProjectSettingStore();
+
+  // 注入聊天窗口停靠状态
+  const chatDockState = inject('chatDockState', ref({
+    isDocked: false,
+    position: 'float',
+    width: 0
+  }));
 
   const collapsed = ref<boolean>(false);
 
@@ -135,6 +146,28 @@
 
   const getMenuLocation = computed(() => {
     return 'left';
+  });
+
+  // 计算布局样式，适应聊天窗口停靠
+  const layoutStyle = computed(() => {
+    if (!chatDockState.value.isDocked) return {};
+
+    const styles: any = {};
+    if (chatDockState.value.position === 'left') {
+      styles.marginLeft = `${chatDockState.value.width}px`;
+    } else if (chatDockState.value.position === 'right') {
+      styles.marginRight = `${chatDockState.value.width}px`;
+    }
+    return styles;
+  });
+
+  // 计算内容区域样式
+  const contentStyle = computed(() => {
+    if (!chatDockState.value.isDocked) return {};
+
+    return {
+      transition: 'all 0.3s ease'
+    };
   });
 
   // 控制显示或隐藏移动端侧边栏

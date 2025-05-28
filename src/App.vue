@@ -11,7 +11,10 @@
     </AppProvider>
 
     <!-- 全局悬浮聊天窗口 -->
-    <FloatingChatWindow v-if="$route.name !== 'login'" />
+    <FloatingChatWindow
+      v-if="$route.name !== 'login'"
+      @dock-change="handleChatDockChange"
+    />
   </NConfigProvider>
 
   <transition v-if="isLock && $route.name !== 'login'" name="slide-up">
@@ -20,11 +23,11 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onMounted, onUnmounted } from 'vue';
+  import { computed, onMounted, onUnmounted, ref, provide } from 'vue';
   import { zhCN, dateZhCN, darkTheme } from 'naive-ui';
   import { LockScreen } from '@/components/Lockscreen';
   import { AppProvider } from '@/components/Application';
-  import { FloatingChatWindow } from '@/components/ChatWindow';
+  import FloatingChatWindow from '@/components/ChatWindow/FloatingChatWindow.vue';
   import { useScreenLockStore } from '@/store/modules/screenLock.js';
   import { useRoute } from 'vue-router';
   import { useDesignSettingStore } from '@/store/modules/designSetting';
@@ -56,6 +59,21 @@
   });
 
   const getDarkTheme = computed(() => (designStore.darkTheme ? darkTheme : undefined));
+
+  // 聊天窗口停靠状态
+  const chatDockState = ref({
+    isDocked: false,
+    position: 'float',
+    width: 0
+  });
+
+  // 处理聊天窗口停靠状态变化
+  const handleChatDockChange = (state: { isDocked: boolean; position: string; width: number }) => {
+    chatDockState.value = state;
+  };
+
+  // 提供给子组件使用
+  provide('chatDockState', chatDockState);
 
   let timer: NodeJS.Timer;
 

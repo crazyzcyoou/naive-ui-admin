@@ -18,6 +18,11 @@
     <div
       v-else
       class="chat-window"
+      :class="{
+        'docked': isDocked,
+        'docked-left': dockedPosition === 'left',
+        'docked-right': dockedPosition === 'right'
+      }"
       :style="windowStyle"
     >
       <!-- 聊天窗口头部 -->
@@ -30,6 +35,14 @@
           <small style="opacity: 0.7; margin-left: 8px;">(Ctrl+Shift+C)</small>
         </div>
         <div class="chat-controls">
+          <!-- 停靠选项 -->
+          <n-dropdown :options="dockOptions" @select="handleDockSelect">
+            <n-button text size="small">
+              <n-icon size="16">
+                <SettingOutlined />
+              </n-icon>
+            </n-button>
+          </n-dropdown>
           <!-- 最小化按钮 -->
           <n-button text size="small" @click="toggleMinimize">
             <n-icon size="16">
@@ -49,18 +62,25 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { NIcon, NButton } from 'naive-ui';
-import { MessageOutlined, CloseOutlined } from '@vicons/antd';
+import { NIcon, NButton, NDropdown } from 'naive-ui';
+import { MessageOutlined, CloseOutlined, SettingOutlined } from '@vicons/antd';
 import ChatWindow from './index.vue';
 import { useDesignSettingStore } from '@/store/modules/designSetting';
 
 // 状态管理
 const isMinimized = ref(true); // 默认最小化状态
+const isDocked = ref(false);
+const dockedPosition = ref<'left' | 'right' | 'float'>('float');
 const unreadCount = ref(0);
 
 // 主题设置
 const designSettingStore = useDesignSettingStore();
 const themeColor = computed(() => designSettingStore.appTheme);
+
+// 定义事件发射器
+const emit = defineEmits<{
+  'dock-change': [{ isDocked: boolean; position: string; width: number }]
+}>();
 
 // 位置和拖拽相关
 const getInitialPosition = () => {
@@ -74,6 +94,12 @@ const position = ref(getInitialPosition());
 const isDragging = ref(false);
 const dragOffset = ref({ x: 0, y: 0 });
 
+// 停靠选项
+const dockOptions = [
+  { label: '悬浮', key: 'float' },
+  { label: '停靠左侧', key: 'left' },
+  { label: '停靠右侧', key: 'right' },
+];
 
 
 // 计算样式
@@ -94,15 +120,55 @@ const headerStyle = computed(() => {
 
 
 const windowStyle = computed(() => {
+  const baseStyle = {
+    border: `2px solid ${themeColor.value}`,
+    zIndex: '1000'
+  };
+
+  if (isDocked.value) {
+    switch (dockedPosition.value) {
+      case 'left':
+        return {
+          ...baseStyle,
+          position: 'fixed',
+          left: '0',
+          top: '0',
+          height: '100vh',
+          width: '350px',
+          borderRadius: '0 12px 12px 0',
+          borderLeft: 'none'
+        };
+      case 'right':
+        return {
+          ...baseStyle,
+          position: 'fixed',
+          right: '0',
+          top: '0',
+          height: '100vh',
+          width: '350px',
+          borderRadius: '12px 0 0 12px',
+          borderRight: 'none'
+        };
+      default:
+        return {
+          ...baseStyle,
+          position: 'fixed',
+          left: `${position.value.x}px`,
+          top: `${position.value.y}px`,
+          width: '350px',
+          height: '500px',
+          borderRadius: '12px'
+        };
+    }
+  }
   return {
+    ...baseStyle,
     position: 'fixed',
     left: `${position.value.x}px`,
     top: `${position.value.y}px`,
     width: '350px',
     height: '500px',
-    border: `2px solid ${themeColor.value}`,
-    borderRadius: '12px',
-    zIndex: '1000'
+    borderRadius: '12px'
   };
 });
 
@@ -112,9 +178,24 @@ const toggleMinimize = () => {
   saveSettings();
 };
 
+const handleDockSelect = (key: string) => {
+  dockedPosition.value = key as any;
+  isDocked.value = key !== 'float';
+
+  // 发射停靠状态变化事件
+  emit('dock-change', {
+    isDocked: isDocked.value,
+    position: dockedPosition.value,
+    width: isDocked.value ? 350 : 0
+  });
+
+  saveSettings();
+};
+
 
 
 const startDrag = (e: MouseEvent) => {
+  if (isDocked.value) return;
 
   // 防止点击时立即触发拖拽
   const startTime = Date.now();
@@ -183,6 +264,8 @@ const stopDrag = () => {
 const saveSettings = () => {
   const settings = {
     isMinimized: isMinimized.value,
+    isDocked: isDocked.value,
+    dockedPosition: dockedPosition.value,
     position: position.value
   };
   localStorage.setItem('chatWindowSettings', JSON.stringify(settings));
@@ -194,6 +277,8 @@ const loadSettings = () => {
     try {
       const settings = JSON.parse(saved);
       isMinimized.value = settings.isMinimized !== undefined ? settings.isMinimized : true;
+      isDocked.value = settings.isDocked || false;
+      dockedPosition.value = settings.dockedPosition || 'float';
 
       // 验证保存的位置是否在当前屏幕范围内
       if (settings.position) {
@@ -211,6 +296,15 @@ const loadSettings = () => {
       } else {
         position.value = getInitialPosition();
       }
+
+      // 如果加载时是停靠状态，发射事件通知父组件
+      if (isDocked.value) {
+        emit('dock-change', {
+          isDocked: true,
+          position: dockedPosition.value,
+          width: 350
+        });
+      }
     } catch (e) {
       console.error('Failed to load chat window settings:', e);
       position.value = getInitialPosition();
@@ -220,19 +314,21 @@ const loadSettings = () => {
 
 // 窗口大小变化处理
 const handleResize = () => {
-  // 确保窗口仍在可见范围内
-  const elementWidth = isMinimized.value ? 60 : 350;
-  const elementHeight = isMinimized.value ? 60 : 500;
-  const minX = -elementWidth + 50;
-  const maxX = window.innerWidth - 50;
-  const minY = 0;
-  const maxY = window.innerHeight - 50;
+  if (!isDocked.value) {
+    // 确保窗口仍在可见范围内
+    const elementWidth = isMinimized.value ? 60 : 350;
+    const elementHeight = isMinimized.value ? 60 : 500;
+    const minX = -elementWidth + 50;
+    const maxX = window.innerWidth - 50;
+    const minY = 0;
+    const maxY = window.innerHeight - 50;
 
-  position.value = {
-    x: Math.max(minX, Math.min(maxX, position.value.x)),
-    y: Math.max(minY, Math.min(maxY, position.value.y))
-  };
-  saveSettings();
+    position.value = {
+      x: Math.max(minX, Math.min(maxX, position.value.x)),
+      y: Math.max(minY, Math.min(maxY, position.value.y))
+    };
+    saveSettings();
+  }
 };
 
 // 键盘快捷键处理
@@ -314,6 +410,23 @@ onUnmounted(() => {
   overflow: hidden;
   pointer-events: auto;
   transition: all 0.3s ease;
+}
+
+.chat-window.docked {
+  border-radius: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.chat-window.docked-left {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.chat-window.docked-right {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
 }
 
 
