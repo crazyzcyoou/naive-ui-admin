@@ -61,8 +61,6 @@ const resumeParams = reactive({
   pageSize: 10
 });
 
-
-
 // 操作列定义
 const actionColumn = reactive({
   width: 150,
@@ -79,9 +77,7 @@ const actionColumn = reactive({
         },
         {
           label: '删除',
-          // 可以根据需要添加确认提示
           onClick: handleDelete.bind(null, record),
-
         },
       ],
     });
@@ -91,11 +87,7 @@ const actionColumn = reactive({
 // 加载简历列表
 const loadResume = async (res) => {
   const data = await getSupplyList({ ...resumeParams, ...res });
-
-  // 解构拿到必要字段，避免 data.xxx 重复书写
   const { items = [], page = 1, total = 0 } = data;
-
-  // 拼装表格所需的数据结构
   return {
     list: items,
     page: page,
@@ -118,9 +110,6 @@ const loadDemandInfo = async () => {
 
 // 打开上传弹窗
 function openUpload() {
-  // if (!resumeParams.demandId) {
-  //   return message.warning('请先选择一个需求');
-  // }
   uploadRef.value.openModal();
 }
 
@@ -128,7 +117,6 @@ function openUpload() {
 function openEditDemand(record) {
   editResumeRef.value.openModal();
 }
-
 
 // 删除简历
 async function handleDelete(record) {
@@ -152,7 +140,6 @@ function reloadTable() {
 }
 
 onMounted(() => {
-  // 从URL路径参数获取需求ID
   const demandId = Number(route.query.demandId);
   if (demandId) {
     resumeParams.demandId = demandId;
@@ -160,104 +147,6 @@ onMounted(() => {
   }
   reloadTable();
 });
-
-
 </script>
 
-<style scoped>
-.demand-info {
-  display: flex;
-  align-items: center;
-}
-
-.full-height-table {
-  height: calc(100vh - 80px);
-  min-height: calc(100vh - 80px);
-  display: flex;
-  flex-direction: column;
-}
-
-.full-height-table :deep(.n-card__content) {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-}
-
-.full-height-table :deep(.basic-table) {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.full-height-table :deep(.basic-table .n-data-table-container) {
-  flex: 1;
-  height: 100%;
-}
-
-.full-height-table :deep(.n-data-table-wrapper) {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: calc(100vh - 200px);
-}
-
-.full-height-table :deep(.n-data-table-base-table-wrapper) {
-  flex: 1;
-  height: 100%;
-  min-height: calc(100vh - 200px);
-  position: relative;
-}
-
-.full-height-table :deep(.n-data-table) {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.full-height-table :deep(.n-data-table-base-table) {
-  flex: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.full-height-table :deep(.n-data-table-base-table-body) {
-  flex: 1;
-  height: 100%;
-  position: relative;
-}
-
-.full-height-table :deep(.n-data-table__main-table) {
-  height: 100%;
-}
-
-.full-height-table :deep(.n-data-table__empty) {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: calc(100vh - 200px);
-  background: #fff;
-}
-
-/* 强制表格容器占满空间 */
-.full-height-table :deep(.n-data-table-container) {
-  min-height: calc(100vh - 200px) !important;
-  height: 100% !important;
-}
-
-.full-height-table :deep(.n-data-table-base-table-header) {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: #fff;
-}
-</style>
+<style scoped src="./demand-supply.css"></style>
