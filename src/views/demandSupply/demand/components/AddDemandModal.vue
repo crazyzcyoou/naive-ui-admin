@@ -12,17 +12,10 @@ import { basicModal, useModal } from '@/components/Modal';
 
 const schemas: FormSchema[] = [
   {
-    field: 'name',
-    component: 'NInput',
-    label: '需求名称',
-    rules: [{ required: true, message: '请输入需求名称', trigger: ['blur'] }],
-    componentProps: { placeholder: '请输入需求名称' },
-  },
-  {
     field: 'desc',
     component: 'NInput',
-    label: '描述',
-    componentProps: { type: 'textarea', placeholder: '请输入描述' },
+    label: '需求文',
+    componentProps: { type: 'textarea', placeholder: '请输入需求文' },
   },
 ];
 
@@ -37,6 +30,7 @@ const [registerForm, { submit }] = useForm({
 const [modalRegister, { openModal, closeModal, setSubLoading }] = useModal({
   title: '新增需求',
   subBtuText: '保存',
+  
 });
 
 async function okModal() {

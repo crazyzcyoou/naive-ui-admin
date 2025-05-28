@@ -1,93 +1,172 @@
 <template>
+    
+  <!-- 上传简历弹窗 -->
+  <UploadResumeModal 
+    ref="uploadRef" 
+    :demand-id="resumeParams.demandId" 
+    @success="reloadTable" 
+  />
+    
+  <!-- 编辑需求弹窗
+  <EditDemandModal ref="editDemandRef" :demand="currentDemand" @success="loadDemandInfo" /> -->
+    
+
   <n-card :bordered="false" class="proCard">
     <BasicTable
-      title="Demand 列表"
-      :columns="demandColumns"
-      :request="loadDemand"
+      ref="resumeRef"
+      :columns="resumeColumns"
+      :request="loadResume"
       :row-key="(row) => row.id"
-      @row-click="showDrawer"
-    />
+      :actionColumn="actionColumn"
+    >
+      <template #tableTitle>
+        <n-button type="primary" @click="openUpload">上传简历</n-button>
+
+        <n-button type="primary" @click="backToDemandList">返回需求列表</n-button>
+
+        <div class="demand-info">
+          <n-tag type="info">当前需求: </n-tag>
+        </div>
+      </template>
+    </BasicTable>
   </n-card>
-
-  <n-drawer v-model:show="drawer" :width="600" placement="right">
-    <n-drawer-content title="需求详情" closable>
-      <BasicForm @register="registerForm" />
-      <n-divider />
-      <BasicTable
-        title="简历列表"
-        :columns="resumeColumns"
-        :request="loadResume"
-        :row-key="(row) => row.id"
-        ref="resumeRef"
-      >
-        <template #tableTitle>
-          <n-button type="primary" @click="openUpload">上传简历</n-button>
-        </template>
-        <template #action="{ record }">
-          <n-button text type="primary" @click="editResume(record)">编辑</n-button>
-        </template>
-      </BasicTable>
-    </n-drawer-content>
-  </n-drawer>
-
-  <UploadResumeModal ref="uploadRef" />
-  <EditResumeModal ref="editRef" />
+  <!-- 编辑简历弹窗 -->
+  <EditResumeModal ref="editResumeRef" @success="reloadTable" />
+  <AddDemandModal ref="addRef" />
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
-import { BasicTable } from '@/components/Table';
-import { BasicForm, FormSchema, useForm } from '@/components/Form';
-import { NButton } from 'naive-ui';
+import { reactive, ref, onMounted, h } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { BasicTable, TableAction } from '@/components/Table';
+import { NButton, NSpace, NTag, useMessage } from 'naive-ui';
+import { getSupplyList, deleteSupply } from '@/api/demandSupply/supply';
 import { getDemandList } from '@/api/demandSupply/demand';
-import { getSupplyList } from '@/api/demandSupply/supply';
-import { columns as demandColumns } from '../demand/columns';
 import { resumeColumns } from './columns';
 import UploadResumeModal from './components/UploadResumeModal.vue';
 import EditResumeModal from './components/EditResumeModal.vue';
+import EditDemandModal from './components/EditDemandModal.vue';
 
-const drawer = ref(false);
-const currentDemand = ref<any>();
+const route = useRoute();
+const router = useRouter();
+const message = useMessage();
 const resumeRef = ref();
 const uploadRef = ref();
-const editRef = ref();
+const editResumeRef = ref();
+const editDemandRef = ref();
+const currentDemand = ref(null);
 
-const [registerForm] = useForm({
-  gridProps: { cols: 1 },
-  labelWidth: 80,
-  layout: 'horizontal',
-  showActionButtonGroup: false,
-  schemas: [
-    { field: 'name', component: 'NInput', label: '需求名称' },
-    { field: 'desc', component: 'NInput', label: '描述', componentProps: { type: 'textarea' } },
-    { field: 'status', component: 'NSwitch', label: '启用' },
-  ] as FormSchema[],
+const resumeParams = reactive({ 
+  demandId: 0, 
+  pageSize: 10 
 });
 
-const demandParams = reactive({ pageSize: 10 });
-const resumeParams = reactive({ demandId: 0, pageSize: 10 });
 
-const loadDemand = async (res) => {
-  return await getDemandList({ ...demandParams, ...res });
-};
 
+// 操作列定义
+const actionColumn = reactive({
+  width: 150,
+  title: '操作',
+  key: 'action',
+  fixed: 'right',
+  render(record) {
+    return h(TableAction, {
+      style: 'button',
+      actions: [
+        {
+          label: '编辑',
+          onClick: openEditDemand.bind(null, record),
+        },
+        {
+          label: '删除',
+          // 可以根据需要添加确认提示
+          onClick: handleDelete.bind(null, record),
+  
+        },
+      ],
+    });
+  },
+});
+
+// 加载简历列表
 const loadResume = async (res) => {
-  return await getSupplyList({ ...resumeParams, ...res, demandId: resumeParams.demandId });
+  const data = await getSupplyList({ ...resumeParams, ...res });
+  
+  // 解构拿到必要字段，避免 data.xxx 重复书写
+  const { items = [], page = 1, total = 0 } = data;
+
+  // 拼装表格所需的数据结构
+  return {
+    list: items,
+    page: page,
+    itemCount: total,
+    pageCount: Math.ceil(total / resumeParams.pageSize),
+    pageSize: resumeParams.pageSize,
+  };
 };
 
-function showDrawer(row) {
-  currentDemand.value = row;
-  resumeParams.demandId = row.id;
-  drawer.value = true;
-}
+// 加载需求信息
+const loadDemandInfo = async () => {
+  if (resumeParams.demandId) {
+    try {
+      currentDemand.value = await getDemandList(resumeParams.demandId);
+    } catch (error) {
+      message.error('获取需求信息失败');
+    }
+  }
+};
 
+// 打开上传弹窗
 function openUpload() {
+  // if (!resumeParams.demandId) {
+  //   return message.warning('请先选择一个需求');
+  // }
   uploadRef.value.openModal();
 }
 
-function editResume(record) {
-  editRef.value.show(record);
+// 打开编辑需求弹窗
+function openEditDemand(record) {
+  editResumeRef.value.openModal();
 }
+
+
+// 删除简历
+async function handleDelete(record) {
+  try {
+    await deleteSupply(record.id);
+    message.success('删除成功');
+    reloadTable();
+  } catch (error) {
+    message.error('删除失败');
+  }
+}
+
+// 返回需求列表
+function backToDemandList() {
+  router.push({ path: '/demand-supply/demand', query: {} });
+}
+
+// 重新加载表格
+function reloadTable() {
+  resumeRef.value?.reload();
+}
+
+onMounted(() => {
+  // 从URL路径参数获取需求ID
+  const demandId = Number(route.query.demandId);
+  if (demandId) {
+    resumeParams.demandId = demandId;
+    loadDemandInfo();
+  }
+  reloadTable();
+});
+
+
 </script>
 
-<style scoped></style>
+<style scoped>
+.demand-info {
+  display: flex;
+  align-items: center;
+}
+</style>

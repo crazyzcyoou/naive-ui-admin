@@ -131,9 +131,9 @@
             <n-badge dot color="#19be6b" v-if="settingStore.navTheme === 'header-dark'" />
           </div>
         </div> -->
-        <n-divider title-placement="center">界面功能</n-divider>
+        <!-- <n-divider title-placement="center">界面功能</n-divider> -->
 
-        <div class="drawer-setting-item">
+        <!-- <div class="drawer-setting-item">
           <div class="drawer-setting-item-title"> 分割菜单 </div>
           <div class="drawer-setting-item-action">
             <n-switch
@@ -148,7 +148,7 @@
           <div class="drawer-setting-item-action">
             <n-switch v-model:value="settingStore.headerSetting.fixed" />
           </div>
-        </div>
+        </div> -->
 
         <!--        <div class="drawer-setting-item">-->
         <!--          <div class="drawer-setting-item-title">-->
@@ -159,16 +159,16 @@
         <!--          </div>-->
         <!--        </div>-->
 
-        <div class="drawer-setting-item">
+        <!-- <div class="drawer-setting-item">
           <div class="drawer-setting-item-title"> 固定多页签 </div>
           <div class="drawer-setting-item-action">
             <n-switch v-model:value="settingStore.multiTabsSetting.fixed" />
           </div>
-        </div>
+        </div> -->
 
-        <n-divider title-placement="center">界面显示</n-divider>
+        <!-- <n-divider title-placement="center">界面显示</n-divider> -->
 
-        <div class="drawer-setting-item">
+        <!-- <div class="drawer-setting-item">
           <div class="drawer-setting-item-title"> 显示重载页面按钮 </div>
           <div class="drawer-setting-item-action">
             <n-switch v-model:value="settingStore.headerSetting.isReload" />
@@ -194,7 +194,7 @@
           <div class="drawer-setting-item-action">
             <n-switch v-model:value="settingStore.multiTabsSetting.show" />
           </div>
-        </div>
+        </div> -->
         <!--1.15废弃，没啥用，占用操作空间-->
         <!--        <div class="drawer-setting-item">-->
         <!--          <div class="drawer-setting-item-title"> 显示页脚 </div>-->

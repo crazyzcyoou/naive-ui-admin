@@ -1,10 +1,10 @@
 <template>
   <n-card :bordered="false" class="proCard">
     <BasicTable
-      :columns="columns"
+      ref="resumeRef"
+      :columns="demandColumns"
       :request="loadDataTable"
       :row-key="(row) => row.id"
-      ref="actionRef"
     >
       <template #tableTitle>
         <n-button type="primary" @click="openAdd">
@@ -17,14 +17,14 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { BasicTable } from '@/components/Table';
 import { NButton } from 'naive-ui';
 import { getDemandList } from '@/api/demandSupply/demand';
-import { columns } from './columns';
+import { demandColumns } from './columns';
 import AddDemandModal from './components/AddDemandModal.vue';
 
-const actionRef = ref();
+const resumeRef = ref();
 const addRef = ref();
 
 const params = reactive({
@@ -54,6 +54,15 @@ const loadDataTable = async (res) => {
 function openAdd() {
   addRef.value.openModal();
 }
+
+// 重新加载表格
+function reloadTable() {
+  resumeRef.value?.reload();
+}
+
+onMounted(() => {
+  reloadTable();
+});
 </script>
 
 <style scoped></style>
