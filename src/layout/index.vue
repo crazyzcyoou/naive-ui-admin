@@ -1,17 +1,5 @@
 <template>
   <n-layout class="layout" :position="fixedMenu" has-sider>
-    <!-- 侧边菜单位置 -->
-    <n-layout-sider v-if="!isMobile" :width="300" :native-scrollbar="false" class="layout-sider">
-      <div class="chat-sidebar">
-        <div class="chat-sidebar-header">
-          <n-icon size="18" class="mr-2">
-            <MessageOutlined />
-          </n-icon>
-          <span>聊天助手</span>
-        </div>
-        <ChatWindow />
-      </div>
-    </n-layout-sider>
 
     <n-drawer
       v-model:show="showSideDrawer"
@@ -77,7 +65,7 @@
   import { MainView } from './components/Main';
   import { AsideMenu } from './components/Menu';
   import { PageHeader } from './components/Header';
-  import { ChatWindow } from '@/components/ChatWindow';
+
   import { useProjectSetting } from '@/hooks/setting/useProjectSetting';
   import { useDesignSetting } from '@/hooks/setting/useDesignSetting';
   import { useRoute } from 'vue-router';
@@ -264,20 +252,5 @@
     padding-top: 0;
   }
 
-  .chat-sidebar {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background-color: #f9f9f9;
-    border-right: 1px solid #eaeaea;
-  }
 
-  .chat-sidebar-header {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    font-weight: bold;
-    border-bottom: 1px solid #eaeaea;
-    background-color: #fff;
-  }
 </style>
