@@ -1,17 +1,5 @@
 <template>
   <n-layout class="layout" :position="fixedMenu" has-sider>
-    <!-- 侧边菜单位置 -->
-    <n-layout-sider v-if="!isMobile" :width="300" :native-scrollbar="false" class="layout-sider">
-      <div class="chat-sidebar">
-        <div class="chat-sidebar-header">
-          <n-icon size="18" class="mr-2">
-            <MessageOutlined />
-          </n-icon>
-          <span>聊天助手</span>
-        </div>
-        <ChatWindow />
-      </div>
-    </n-layout-sider>
 
     <n-drawer
       v-model:show="showSideDrawer"
@@ -32,7 +20,10 @@
       </n-layout-sider>
     </n-drawer>
 
-    <n-layout :inverted="inverted">
+    <n-layout
+      :inverted="inverted"
+      :style="layoutStyle"
+    >
       <n-layout-header :inverted="getHeaderInverted" :position="fixedHeader">
         <PageHeader v-model:collapsed="collapsed" :inverted="inverted" />
       </n-layout-header>
@@ -40,6 +31,7 @@
       <n-layout-content
         class="layout-content"
         :class="{ 'layout-default-background': getDarkTheme === false }"
+        :style="contentStyle"
       >
         <div
           class="layout-content-main"
@@ -71,13 +63,13 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, unref, computed, onMounted } from 'vue';
+  import { ref, unref, computed, onMounted, inject } from 'vue';
   import { Logo } from './components/Logo';
   import { TabsView } from './components/TagsView';
   import { MainView } from './components/Main';
   import { AsideMenu } from './components/Menu';
   import { PageHeader } from './components/Header';
-  import { ChatWindow } from '@/components/ChatWindow';
+
   import { useProjectSetting } from '@/hooks/setting/useProjectSetting';
   import { useDesignSetting } from '@/hooks/setting/useDesignSetting';
   import { useRoute } from 'vue-router';
@@ -94,6 +86,13 @@
   } = useProjectSetting();
 
   const settingStore = useProjectSettingStore();
+
+  // 注入聊天窗口停靠状态
+  const chatDockState = inject('chatDockState', ref({
+    isDocked: false,
+    position: 'float',
+    width: 0
+  }));
 
   const collapsed = ref<boolean>(false);
 
@@ -147,6 +146,28 @@
 
   const getMenuLocation = computed(() => {
     return 'left';
+  });
+
+  // 计算布局样式，适应聊天窗口停靠
+  const layoutStyle = computed(() => {
+    if (!chatDockState.value.isDocked) return {};
+
+    const styles: any = {};
+    if (chatDockState.value.position === 'left') {
+      styles.marginLeft = `${chatDockState.value.width}px`;
+    } else if (chatDockState.value.position === 'right') {
+      styles.marginRight = `${chatDockState.value.width}px`;
+    }
+    return styles;
+  });
+
+  // 计算内容区域样式
+  const contentStyle = computed(() => {
+    if (!chatDockState.value.isDocked) return {};
+
+    return {
+      transition: 'all 0.3s ease'
+    };
   });
 
   // 控制显示或隐藏移动端侧边栏
@@ -264,20 +285,5 @@
     padding-top: 0;
   }
 
-  .chat-sidebar {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background-color: #f9f9f9;
-    border-right: 1px solid #eaeaea;
-  }
 
-  .chat-sidebar-header {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    font-weight: bold;
-    border-bottom: 1px solid #eaeaea;
-    background-color: #fff;
-  }
 </style>
