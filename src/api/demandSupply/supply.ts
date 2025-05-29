@@ -1,6 +1,6 @@
 import { Alova } from '@/utils/http/alova/index';
 
-export interface ResumeItem {
+export interface SupplyItem {
   id: number;
   demandId: number;
   name: string;
@@ -9,17 +9,21 @@ export interface ResumeItem {
 }
 
 export function getSupplyList(params?) {
-  return Alova.Get<{ list: ResumeItem[] }>('/v1/supply/list', { params });
+    return Alova.Get<{ list: SupplyItem[] }>(`/v1/match/list_supply/${params.demandId}`, { params });
 }
 
-export function updateResume(id: number, params: Partial<ResumeItem>) {
-  return Alova.Post(`/supply/update/${id}`, { params });
+// 上传简历
+export function uploadSupply(params?) {
+  return Alova.Post(`/v1/match/upload_resume`);
 }
 
-export function toggleResume(id: number) {
-  return Alova.Post(`/supply/toggle/${id}`);
+// 更新简历
+export function updateSupply(params?) {
+  return Alova.Post(`/v1/match/supply/${params.id}`, { params });
 }
 
-export function uploadResume(params: Record<string, any>) {
-  return Alova.Post('/supply/upload', { params });
+// 删除简历
+export function deleteSupply(id: number) {
+  return Alova.Post(`/v1/match/delete_supply/${id}`, { });
 }
+

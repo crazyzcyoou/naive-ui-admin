@@ -1,8 +1,16 @@
 <template>
   <n-layout class="layout" :position="fixedMenu" has-sider>
-    <!-- 原侧边菜单位置 -->
+    <!-- 侧边菜单位置 -->
     <n-layout-sider v-if="!isMobile" :width="300" :native-scrollbar="false" class="layout-sider">
-      <ChatWindow />
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-header">
+          <n-icon size="18" class="mr-2">
+            <MessageOutlined />
+          </n-icon>
+          <span>聊天助手</span>
+        </div>
+        <ChatWindow />
+      </div>
     </n-layout-sider>
 
     <n-drawer
@@ -254,5 +262,22 @@
 
   .noMultiTabs {
     padding-top: 0;
+  }
+
+  .chat-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #f9f9f9;
+    border-right: 1px solid #eaeaea;
+  }
+
+  .chat-sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    font-weight: bold;
+    border-bottom: 1px solid #eaeaea;
+    background-color: #fff;
   }
 </style>
