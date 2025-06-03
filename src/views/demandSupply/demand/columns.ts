@@ -1,6 +1,16 @@
 import { h } from 'vue';
-import { BasicColumn } from '@/components/Table';
 import router from '@/router';
+import { NSwitch, NTag } from 'naive-ui'
+import { BasicColumn } from '@/components/Table';
+import { updateDemandCtive } from '@/api/demandSupply/demand';
+
+
+
+const statusMap = {
+  close: '已取消',
+  refuse: '已拒绝',
+  pass: '已通过',
+};
 
 export const demandColumns: BasicColumn[] = [
   { 
@@ -49,5 +59,24 @@ export const demandColumns: BasicColumn[] = [
   { title: '英语', key: 'english_level' },
   { title: '国籍', key: 'citizenship' },
   { title: '价格', key: 'price' },
-  // { title: '无效', key: 'active' },
+  {
+    title: '无效',
+    key: 'active',          // 对应行数据里的字段名，可自行调整
+    width: 80,
+    align: 'center',
+    render(row) {
+      return h(NSwitch, {  
+        'value': row.active,           // Naive UI 用 value / update:value
+        'onUpdate:value': async (val: boolean) => {
+          row.active = val;              // 本地立即变更
+          try {
+            console.log(row.id, val);
+            await updateDemandCtive(row.id, val);
+          } catch (e) {
+            row.active = !val; 
+          }
+        },
+      });
+    },
+  }
 ];

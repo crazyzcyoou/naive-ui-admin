@@ -1,4 +1,8 @@
 <template>
+  <AddDemandModal
+    ref="addRef"
+    @success="reloadTable"
+  />
   <n-card :bordered="false" class="proCard full-height-table">
     <BasicTable
       ref="resumeRef"
@@ -28,10 +32,11 @@ import { reactive, ref, onMounted } from 'vue';
 import { PlusOutlined } from '@vicons/antd';
 import { demandColumns } from './columns';
 import { NButton } from 'naive-ui';
+import AddDemandModal from './components/AddDemandModal.vue';
 
 const resumeRef = ref();
 const params = reactive({
-  pageSize: 10,
+  pageSize: 20,
 });
 const addRef = ref();
 

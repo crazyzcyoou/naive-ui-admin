@@ -1,42 +1,59 @@
 <template>
-
   <!-- 上传简历弹窗 -->
   <UploadResumeModal
     ref="uploadRef"
-    :demand-id="resumeParams.demandId"
+    :demandId="resumeParams.demandId"
     @success="reloadTable"
   />
 
-  <n-card :bordered="false" class="proCard">
-    <BasicTable
-      ref="resumeRef"
-      :striped="true"
-      :request="loadResume"
-      :columns="resumeColumns"
-      :row-key="(row) => row.id"
-      :actionColumn="actionColumn"
-    >
-      <template #tableTitle>
-        <n-space>
-          <n-button type="primary" @click="openUpload">
-            <template #icon>
-              <n-icon>
-                <PlusOutlined />
-              </n-icon>
-            </template>
-            新建
-          </n-button>
-          <n-button type="primary" @click="backToDemandList">返回需求列表</n-button>
-        </n-space>
-      </template>
-    </BasicTable>
-  </n-card>
+  <!-- 横向排列的两张卡片 -->
+  <n-grid :x-gap="24">
+    <n-grid-item span="6">
+        <n-card :bordered="false" size="small" >
+          <DemandInfo />
+        </n-card>
+    </n-grid-item>
+    <n-grid-item span="18">
+      <n-card :bordered="false" class="proCard">
+        <BasicTable
+          ref="resumeRef"
+          :striped="true"
+          :request="loadResume"
+          :columns="resumeColumns"
+          :row-key="(row) => row.id"
+          :actionColumn="actionColumn"
+        >
+          <template #tableTitle>
+            <n-space>
+              <n-button type="primary" @click="openUpload">
+                <template #icon>
+                  <n-icon>
+                    <PlusOutlined />
+                  </n-icon>
+                </template>
+                新建
+              </n-button>
+              <n-button type="primary" @click="backToDemandList">返回需求列表</n-button>
+            </n-space>
+          </template>
+        </BasicTable>
+      </n-card>
+    </n-grid-item>
+  </n-grid>
+
   <!-- 编辑简历弹窗 -->
-  <EditResumeModal ref="editResumeRef" @success="reloadTable" />
+  <EditResumeModal
+    ref="editResumeRef"
+    @success="reloadTable"
+    :params="supplyData"
+  />
   <AddDemandModal ref="addRef" />
 </template>
 
+
 <script lang="ts" setup>
+import { FormSchema, useForm } from '@/components/Form';
+import { basicModal, useModal } from '@/components/Modal';
 import { reactive, ref, onMounted, h } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { BasicTable, TableAction } from '@/components/Table';
@@ -47,7 +64,10 @@ import { PlusOutlined } from '@vicons/antd';
 import { resumeColumns } from './columns';
 import UploadResumeModal from './components/UploadResumeModal.vue';
 import EditResumeModal from './components/EditResumeModal.vue';
+import DemandInfo from './components/DemandInfo.vue';
 import { DeleteOutlined, EditOutlined } from '@vicons/antd';
+
+
 const route = useRoute();
 const router = useRouter();
 const message = useMessage();
@@ -58,8 +78,120 @@ const currentDemand = ref(null);
 
 const resumeParams = reactive({
   demandId: 0,
-  pageSize: 10
+  pageSize: 20
 });
+
+const supplyData = ref({
+});
+
+const schemas: FormSchema[] = [
+    {
+      field: 'proposal_document',
+      component: 'NInput',
+      label: '联络文',
+      componentProps: {
+        type: 'textarea',
+        placeholder: '请输入联络文......',
+      },
+    },
+    {
+      field: 'role',
+      component: 'NInput',
+      label: '角色',
+      componentProps: {
+        placeholder: '',
+        disabled: true,
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+    {
+      field: 'specialty',
+      component: 'NInput',
+      label: '得意分野',
+      componentProps: {
+        placeholder: '',
+        disabled: true,
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+    {
+      field: 'citizenship',
+      component: 'NInput',
+      label: '国籍',
+      componentProps: {
+        placeholder: '',
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+    {
+      field: 'price',
+      component: 'NInput',
+      label: '单价/万円',
+      componentProps: {
+        placeholder: '',
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+    {
+      field: 'nearest_station',
+      component: 'NInput',
+      label: '最近车站',
+      componentProps: {
+        placeholder: '',
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+    {
+      field: 'work_percent',
+      component: 'NInput',
+      label: '工作占比',
+      componentProps: {
+        placeholder: '',
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+    {
+      field: 'japanese_level',
+      component: 'NInput',
+      label: '日语等级',
+      componentProps: {
+        placeholder: '',
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+    {
+      field: 'english_level',
+      component: 'NInput',
+      label: '英语等级',
+      componentProps: {
+        placeholder: '',
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+    {
+      field: 'belonging_suppliers',
+      component: 'NInput',
+      label: '所属供应商',
+      componentProps: {
+        placeholder: '',
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+  ];
+  const [registerForm, {  }] = useForm({
+    gridProps: { cols: 1 },
+    collapsedRows: 3,
+    labelWidth: 80,
+    layout: 'horizontal',
+    submitButtonText: '保存',
+    showActionButtonGroup: false,
+    schemas,
+  });
+
+  const [modalRegister, {  }] = useModal({
+    title: '编辑',
+    subBtuText: '保存',
+  });
 
 // 操作列定义
 const actionColumn = reactive({
@@ -120,6 +252,7 @@ function openUpload() {
 
 // 打开编辑需求弹窗
 async function openEditDemand(record) {
+  supplyData.value = record;
   editResumeRef.value.openModal();
 }
 
@@ -165,5 +298,10 @@ onMounted(() => {
 });
 </script>
 
-<style scoped src="../demand-supply.css"></style>
+<style scoped src="../demand-supply.css">
+.proCard {
+  flex: 1;
+  min-width: 0;
+}
+</style>
 

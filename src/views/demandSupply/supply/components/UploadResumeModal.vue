@@ -19,7 +19,7 @@
           ref="uploadRef"
           multiple
           :default-upload="false"
-          :max="1"
+          :max="100"
           accept=".pdf,.doc,.docx"
           @change="handleUploadChange"
         >
@@ -87,22 +87,24 @@ async function handleSubmit() {
   if (formValue.files.length === 0) {
     return message.warning('请选择至少一个简历文件');
   }
-  
+  console.log(formValue.files.length)
   uploading.value = true;
   
   try {
+
     const formData = new FormData();
+  
     formValue.files.forEach(file => {
-      formData.append('files', file.file);
+      formData.append('files', file);
     });
-    formData.append('demandId', props.demandId.toString());
+    formData.append('demand_id', props.demandId.toString()); 
     
     await uploadSupply(formData);
     message.success('简历上传成功');
     emit('success');
     closeModal();
   } catch (error) {
-    message.error('上传失败：' + error.message);
+    message.error('上传失败！');
   } finally {
     uploading.value = false;
   }

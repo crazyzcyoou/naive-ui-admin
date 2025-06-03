@@ -1,9 +1,9 @@
 <template>
-  <basicModal @register="modalRegister" ref="modalRef" @on-ok="okModal">
-    <div class="pt-2">
+  <n-grid cols="2 s:2 m:2 l:3 xl:3 2xl:3" responsive="screen">
+    <n-grid-item>
       <BasicForm @register="registerForm" />
-    </div>
-  </basicModal>
+    </n-grid-item>
+  </n-grid>
 </template>
 
 <script lang="ts" setup>

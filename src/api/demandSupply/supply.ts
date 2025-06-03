@@ -14,7 +14,17 @@ export function getSupplyList(params?) {
 
 // 上传简历
 export function uploadSupply(params?) {
-  return Alova.Post(`/v1/match/upload_resume`);
+  return Alova.Post(`/v1/match/upload_resume`, params);
+}
+
+// 启用/停用需求
+export function updateSupplyCtive(supply_id: number, active: boolean) {
+  return Alova.Post(`/v1/match/supply/update/active/${supply_id}`, {"active": active});
+}
+
+// 预览简历文件
+export function resumePreviewCode(supply_id: number) {
+  return Alova.Post(`/v1/match/resume_preview_code`, { "supply_id": supply_id });
 }
 
 // 更新简历
