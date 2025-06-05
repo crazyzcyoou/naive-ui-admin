@@ -67,6 +67,14 @@ import { MessageOutlined, CloseOutlined, SettingOutlined } from '@vicons/antd';
 import ChatWindow from './index.vue';
 import { useDesignSettingStore } from '@/store/modules/designSetting';
 
+/**
+ * ==============================
+ *  CONSTANTS & CONFIG
+ * ==============================
+ */
+// 导航栏高度（可根据实际布局修改，或在主布局中通过 CSS 变量 --navbar-height 动态覆盖）
+const NAVBAR_HEIGHT = 60; // 单位：px
+
 // 状态管理
 const isMinimized = ref(true); // 默认最小化状态
 const isDocked = ref(false);
@@ -84,7 +92,6 @@ const emit = defineEmits<{
 
 // 位置和拖拽相关
 const getInitialPosition = () => {
-  // 确保初始位置在屏幕范围内
   const x = Math.min(window.innerWidth - 80, Math.max(20, window.innerWidth - 80));
   const y = Math.min(window.innerHeight - 80, Math.max(20, window.innerHeight - 80));
   return { x, y };
@@ -98,80 +105,65 @@ const dragOffset = ref({ x: 0, y: 0 });
 const dockOptions = [
   { label: '悬浮', key: 'float' },
   { label: '停靠左侧', key: 'left' },
-  { label: '停靠右侧', key: 'right' },
+  { label: '停靠右侧', key: 'right' }
 ];
 
-
 // 计算样式
-const iconStyle = computed(() => {
-  return {
-    left: `${position.value.x}px`,
-    top: `${position.value.y}px`,
-    background: `linear-gradient(135deg, ${themeColor.value} 0%, ${themeColor.value}dd 100%)`
-  };
-});
+const iconStyle = computed(() => ({
+  left: `${position.value.x}px`,
+  top: `${position.value.y}px`,
+  background: `linear-gradient(135deg, ${themeColor.value} 0%, ${themeColor.value}dd 100%)`
+}));
 
-const headerStyle = computed(() => {
-  return {
-    background: `linear-gradient(135deg, ${themeColor.value} 0%, ${themeColor.value}dd 100%)`
-  };
-});
+const headerStyle = computed(() => ({
+  background: `linear-gradient(135deg, ${themeColor.value} 0%, ${themeColor.value}dd 100%)`
+}));
 
-
-
+/**
+ * 关键修改：在停靠模式下(左右)让聊天窗口出现在导航栏下方，
+ * 并且自适应减去导航栏高度，防止遮挡。
+ */
 const windowStyle = computed(() => {
-  const baseStyle = {
+  const baseStyle: Record<string, string> = {
     border: `2px solid ${themeColor.value}`,
     zIndex: '1000'
   };
 
+  // 停靠模式
   if (isDocked.value) {
-    // 计算可用的窗口高度，减去一些安全边距
-    const availableHeight = Math.min(window.innerHeight - 20, 800); // 最大800px，减去20px安全边距
+    const dockedBase = {
+      ...baseStyle,
+      position: 'fixed',
+      top: `${NAVBAR_HEIGHT + 10}px`, // 导航栏高度 + 10px 外边距
+      bottom: '10px',
+      width: '350px',
+      display: 'flex',
+      flexDirection: 'column',
+      height: `calc(100vh - ${NAVBAR_HEIGHT}px - 20px)` // 10px 顶部间距 + 10px 底部间距
+    } as const;
 
     switch (dockedPosition.value) {
       case 'left':
         return {
-          ...baseStyle,
-          position: 'fixed',
+          ...dockedBase,
           left: '0',
-          top: '10px', // 添加顶部边距
-          height: `${availableHeight}px`,
-          width: '350px',
-          borderRadius: '0 6px 6px 0', /* 从12px改为6px */
-          borderLeft: 'none',
-          maxHeight: `${availableHeight}px`,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column'
-        };
+          borderRadius: '0 6px 6px 0',
+          borderLeft: 'none'
+        } as const;
       case 'right':
         return {
-          ...baseStyle,
-          position: 'fixed',
+          ...dockedBase,
           right: '0',
-          top: '10px', // 添加顶部边距
-          height: `${availableHeight}px`,
-          width: '350px',
-          borderRadius: '6px 0 0 6px', /* 从12px改为6px */
-          borderRight: 'none',
-          maxHeight: `${availableHeight}px`,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column'
-        };
+          borderRadius: '6px 0 0 6px',
+          borderRight: 'none'
+        } as const;
       default:
-        return {
-          ...baseStyle,
-          position: 'fixed',
-          left: `${position.value.x}px`,
-          top: `${position.value.y}px`,
-          width: '280px',
-          height: '380px',
-          borderRadius: '6px' /* 从12px改为6px */
-        };
+        // 'float' 情况下不会进入此分支，但为了类型完整性保留
+        break;
     }
   }
+
+  // 悬浮模式
   return {
     ...baseStyle,
     position: 'fixed',
@@ -179,11 +171,13 @@ const windowStyle = computed(() => {
     top: `${position.value.y}px`,
     width: '280px',
     height: '380px',
-    borderRadius: '6px' /* 从12px改为6px */
-  };
+    borderRadius: '6px'
+  } as const;
 });
 
-// 方法
+// ==============================
+//        其余逻辑保持不变
+// ==============================
 const toggleMinimize = () => {
   isMinimized.value = !isMinimized.value;
   saveSettings();
@@ -191,27 +185,15 @@ const toggleMinimize = () => {
 
 const handleClose = () => {
   if (isDocked.value) {
-    // 如果是停靠状态，点击X回到悬浮状态
     isDocked.value = false;
     dockedPosition.value = 'float';
-    // 发射停靠状态变化事件
-    emit('dock-change', {
-      isDocked: false,
-      position: 'float',
-      width: 0
-    });
-
-    // 强制触发重新渲染，确保悬浮状态下的按钮可见
+    emit('dock-change', { isDocked: false, position: 'float', width: 0 });
     nextTick(() => {
-      // 触发一个小的位置调整来强制重新渲染
       const currentX = position.value.x;
       position.value.x = currentX + 1;
-      nextTick(() => {
-        position.value.x = currentX;
-      });
+      nextTick(() => (position.value.x = currentX));
     });
   } else {
-    // 如果是悬浮状态，最小化
     isMinimized.value = !isMinimized.value;
   }
   saveSettings();
@@ -220,41 +202,29 @@ const handleClose = () => {
 const handleDockSelect = (key: string) => {
   dockedPosition.value = key as any;
   isDocked.value = key !== 'float';
-
-  // 发射停靠状态变化事件
   emit('dock-change', {
     isDocked: isDocked.value,
     position: dockedPosition.value,
     width: isDocked.value ? 350 : 0
   });
-
   saveSettings();
 };
 
-
-
 const startDrag = (e: MouseEvent) => {
   if (isDocked.value) return;
-
-  // 防止点击时立即触发拖拽
   const startTime = Date.now();
   const startX = e.clientX;
   const startY = e.clientY;
 
   const handleMouseMove = (moveEvent: MouseEvent) => {
     const timeDiff = Date.now() - startTime;
-    const distanceMoved = Math.sqrt(
-      Math.pow(moveEvent.clientX - startX, 2) + Math.pow(moveEvent.clientY - startY, 2)
-    );
-
-    // 只有在移动了一定距离或时间后才开始拖拽
+    const distanceMoved = Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY);
     if (timeDiff > 50 || distanceMoved > 3) {
       isDragging.value = true;
       dragOffset.value = {
         x: moveEvent.clientX - position.value.x,
         y: moveEvent.clientY - position.value.y
       };
-
       document.removeEventListener('mousemove', handleMouseMove);
       document.addEventListener('mousemove', onDrag);
     }
@@ -263,9 +233,7 @@ const startDrag = (e: MouseEvent) => {
   const handleMouseUp = () => {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
-    if (isDragging.value) {
-      stopDrag();
-    }
+    if (isDragging.value) stopDrag();
   };
 
   document.addEventListener('mousemove', handleMouseMove);
@@ -275,17 +243,12 @@ const startDrag = (e: MouseEvent) => {
 
 const onDrag = (e: MouseEvent) => {
   if (!isDragging.value) return;
-
-  // 对于聊天图标，使用更宽松的边界限制
   const elementWidth = isMinimized.value ? 60 : 280;
   const elementHeight = isMinimized.value ? 60 : 380;
-
-  // 允许拖拽到屏幕边缘，只要元素还有一部分可见
-  const minX = -elementWidth + 50; // 允许大部分拖出屏幕，但保留50px可见
-  const maxX = window.innerWidth - 50; // 右边界也保留50px可见
-  const minY = 0; // 顶部不能超出
-  const maxY = window.innerHeight - 50; // 底部保留50px可见
-
+  const minX = -elementWidth + 50;
+  const maxX = window.innerWidth - 50;
+  const minY = 0;
+  const maxY = window.innerHeight - 50;
   position.value = {
     x: Math.max(minX, Math.min(maxX, e.clientX - dragOffset.value.x)),
     y: Math.max(minY, Math.min(maxY, e.clientY - dragOffset.value.y))
@@ -312,67 +275,59 @@ const saveSettings = () => {
 
 const loadSettings = () => {
   const saved = localStorage.getItem('chatWindowSettings');
-  if (saved) {
-    try {
-      const settings = JSON.parse(saved);
-      isMinimized.value = settings.isMinimized !== undefined ? settings.isMinimized : true;
-      isDocked.value = settings.isDocked || false;
-      dockedPosition.value = settings.dockedPosition || 'float';
+  if (!saved) return;
+  try {
+    const settings = JSON.parse(saved);
+    isMinimized.value = settings.isMinimized ?? true;
+    isDocked.value = settings.isDocked ?? false;
+    dockedPosition.value = settings.dockedPosition || 'float';
 
-      // 验证保存的位置是否在当前屏幕范围内
-      if (settings.position) {
-        const elementWidth = settings.isMinimized ? 60 : 280;
-        const elementHeight = settings.isMinimized ? 60 : 380;
-        const minX = -elementWidth + 50;
-        const maxX = window.innerWidth - 50;
-        const minY = 0;
-        const maxY = window.innerHeight - 50;
-
-        position.value = {
-          x: Math.max(minX, Math.min(maxX, settings.position.x)),
-          y: Math.max(minY, Math.min(maxY, settings.position.y))
-        };
-      } else {
-        position.value = getInitialPosition();
-      }
-
-      // 如果加载时是停靠状态，发射事件通知父组件
-      if (isDocked.value) {
-        emit('dock-change', {
-          isDocked: true,
-          position: dockedPosition.value,
-          width: 350
-        });
-      }
-    } catch (e) {
-      console.error('Failed to load chat window settings:', e);
+    if (settings.position) {
+      const elementWidth = settings.isMinimized ? 60 : 280;
+      const elementHeight = settings.isMinimized ? 60 : 380;
+      const minX = -elementWidth + 50;
+      const maxX = window.innerWidth - 50;
+      const minY = 0;
+      const maxY = window.innerHeight - 50;
+      position.value = {
+        x: Math.max(minX, Math.min(maxX, settings.position.x)),
+        y: Math.max(minY, Math.min(maxY, settings.position.y))
+      };
+    } else {
       position.value = getInitialPosition();
     }
+
+    if (isDocked.value) {
+      emit('dock-change', {
+        isDocked: true,
+        position: dockedPosition.value,
+        width: 350
+      });
+    }
+  } catch (e) {
+    console.error('Failed to load chat window settings:', e);
+    position.value = getInitialPosition();
   }
 };
 
 // 窗口大小变化处理
 const handleResize = () => {
-  if (!isDocked.value) {
-    // 确保窗口仍在可见范围内
-    const elementWidth = isMinimized.value ? 60 : 280;
-    const elementHeight = isMinimized.value ? 60 : 380;
-    const minX = -elementWidth + 50;
-    const maxX = window.innerWidth - 50;
-    const minY = 0;
-    const maxY = window.innerHeight - 50;
-
-    position.value = {
-      x: Math.max(minX, Math.min(maxX, position.value.x)),
-      y: Math.max(minY, Math.min(maxY, position.value.y))
-    };
-    saveSettings();
-  }
+  if (isDocked.value) return; // 停靠状态下高度自适应，无需调整
+  const elementWidth = isMinimized.value ? 60 : 280;
+  const elementHeight = isMinimized.value ? 60 : 380;
+  const minX = -elementWidth + 50;
+  const maxX = window.innerWidth - 50;
+  const minY = 0;
+  const maxY = window.innerHeight - 50;
+  position.value = {
+    x: Math.max(minX, Math.min(maxX, position.value.x)),
+    y: Math.max(minY, Math.min(maxY, position.value.y))
+  };
+  saveSettings();
 };
 
 // 键盘快捷键处理
 const handleKeydown = (e: KeyboardEvent) => {
-  // Ctrl + Shift + C 切换聊天窗口
   if (e.ctrlKey && e.shiftKey && e.key === 'C') {
     e.preventDefault();
     toggleMinimize();
@@ -419,8 +374,6 @@ onUnmounted(() => {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-
-
 .unread-badge {
   position: absolute;
   top: -5px;
@@ -437,45 +390,46 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
+/* 基础聊天窗口样式 */
 .chat-window {
   position: fixed;
   width: 280px;
   height: 380px;
   background: white;
-  border-radius: 6px; /* 从12px改为6px，更锋利 */
+  border-radius: 6px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   pointer-events: auto;
   transition: all 0.3s ease;
-  /* 确保边框内容完全对齐 */
   box-sizing: border-box;
 }
 
+/* 停靠模式：高度自适应，考虑导航栏 */
 .chat-window.docked {
-  border-radius: 0;
+  width: 350px;
+  /* 顶部高度留出导航栏空间（CSS 变量，可在主布局覆盖）*/
+  top: calc(var(--navbar-height, 60px) + 10px);
+  height: calc(100vh - var(--navbar-height, 60px) - 20px);
+  margin: 0;
+  padding: 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  margin: 0 !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex-direction: column !important;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-window.docked-left {
-  border-top-right-radius: 6px; /* 从12px改为6px */
-  border-bottom-right-radius: 6px; /* 从12px改为6px */
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
 }
 
 .chat-window.docked-right {
-  border-top-left-radius: 6px; /* 从12px改为6px */
-  border-bottom-left-radius: 6px; /* 从12px改为6px */
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
 }
-
-
 
 .chat-header {
   display: flex;
@@ -501,82 +455,17 @@ onUnmounted(() => {
 .chat-content {
   flex: 1;
   overflow: hidden;
-  min-height: 0; /* 确保flex子元素能够正确收缩 */
-  border-bottom-left-radius: inherit;
-  border-bottom-right-radius: inherit;
-  margin: 0;
-  padding: 0;
-  background: transparent;
   position: relative;
 }
 
-/* 确保内部的 ChatWindow 组件完全填充，没有间隙 */
 .chat-content > * {
   height: 100%;
   width: 100%;
-  border-radius: inherit;
-  margin: 0;
-  padding: 0;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-}
-
-/* 停靠模式下的聊天内容区域 */
-.chat-window.docked .chat-content {
-  flex: 1;
-  overflow: hidden;
-  height: auto;
-}
-
-/* 确保停靠模式下没有多余的边距和填充 */
-.chat-window.docked {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* 确保聊天窗口内容完全填充 */
-.chat-window.docked > * {
-  box-sizing: border-box !important;
-}
-
-/* 强制移除任何可能的边距和填充 */
-.chat-window.docked,
-.chat-window.docked * {
-  margin: 0 !important;
-  box-sizing: border-box !important;
-}
-
-/* 确保聊天窗口组件本身填充整个容器 */
-.chat-window.docked .chat-window {
-  height: 100% !important;
-  min-height: 100% !important;
-  max-height: 100% !important;
-}
-
-/* 专门针对停靠模式的强制样式重置 */
-.floating-chat-window.docked {
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  outline: none !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-}
-
-.floating-chat-window.docked-left {
-  left: 0 !important;
-  right: auto !important;
-  border-right: 2px solid var(--primary-color) !important;
-}
-
-.floating-chat-window.docked-right {
-  right: 0 !important;
-  left: auto !important;
-  border-left: 2px solid var(--primary-color) !important;
 }
 
 .mr-2 {

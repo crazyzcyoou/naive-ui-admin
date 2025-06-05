@@ -8,13 +8,12 @@
   >
     <AppProvider>
       <RouterView />
+      <!-- 全局悬浮聊天窗口 -->
+      <!-- <FloatingChatWindow
+        v-if="$route.name !== 'login'"
+        @dock-change="handleChatDockChange"
+      /> -->
     </AppProvider>
-
-    <!-- 全局悬浮聊天窗口 -->
-    <FloatingChatWindow
-      v-if="$route.name !== 'login'"
-      @dock-change="handleChatDockChange"
-    />
   </NConfigProvider>
 
   <transition v-if="isLock && $route.name !== 'login'" name="slide-up">
@@ -27,7 +26,7 @@
   import { zhCN, dateZhCN, darkTheme } from 'naive-ui';
   import { LockScreen } from '@/components/Lockscreen';
   import { AppProvider } from '@/components/Application';
-  import FloatingChatWindow from '@/components/ChatWindow/FloatingChatWindow.vue';
+  // import FloatingChatWindow from '@/components/ChatWindow/FloatingChatWindow.vue';
   import { useScreenLockStore } from '@/store/modules/screenLock.js';
   import { useRoute } from 'vue-router';
   import { useDesignSettingStore } from '@/store/modules/designSetting';

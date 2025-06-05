@@ -101,7 +101,7 @@
     {
       field: 'belonging_suppliers',
       component: 'NInput',
-      label: '所属供应商',
+      label: '属供应商',
       componentProps: {
         placeholder: '',
       },

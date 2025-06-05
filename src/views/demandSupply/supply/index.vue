@@ -8,13 +8,13 @@
 
   <!-- 横向排列的两张卡片 -->
   <n-grid :x-gap="24">
-    <n-grid-item span="6">
-        <n-card :bordered="false" size="small" >
+    <n-grid-item span="5">
+        <n-card :bordered="false" size="small" class="full-height-table">
           <DemandInfo />
         </n-card>
     </n-grid-item>
-    <n-grid-item span="18">
-      <n-card :bordered="false" class="proCard">
+    <n-grid-item span="19">
+      <n-card :bordered="false" class="proCard full-height-table">
         <BasicTable
           ref="resumeRef"
           :striped="true"
@@ -298,10 +298,5 @@ onMounted(() => {
 });
 </script>
 
-<style scoped src="../demand-supply.css">
-.proCard {
-  flex: 1;
-  min-width: 0;
-}
-</style>
+<style scoped src="../demand-supply.css"></style>
 

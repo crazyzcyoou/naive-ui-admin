@@ -1,5 +1,6 @@
 import { h } from 'vue';
 import { NSwitch } from 'naive-ui';
+import { NProgress } from 'naive-ui';
 import { BasicColumn } from '@/components/Table';
 import type { SupplyItem } from '@/api/demandSupply/supply';
 import { updateSupplyCtive, resumePreviewCode } from '@/api/demandSupply/supply';
@@ -33,7 +34,26 @@ export const resumeColumns: BasicColumn<SupplyItem>[] = [
       return record.create_time?.slice(0, 10) || '';
     },
   },
-  { title: '分析', key: 'analyse' },
+  { 
+    title: '分析', 
+    key: 'analyse',
+    width: 150,          // 视需要留一点宽度
+    render(record) {
+      // 将 record.analyse 转成 0-100 的数字
+      const percent = Number(record.analyse) ?? 0;
+
+      return h(
+        NProgress,
+        {
+          percentage: percent,          // 进度 %
+          showIndicator: true,          // 内嵌数字
+          indicatorPlacement: 'inside', // 数字显示在条内
+          type: 'circle',                 // 线型进度条
+          height: 6                    // 稍微矮一点
+        }
+      );
+    }
+  },
   { title: '角色', key: 'role' },
   { title: '得意分野', key: 'specialty' },
   { 

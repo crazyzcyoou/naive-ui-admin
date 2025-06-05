@@ -131,6 +131,11 @@
   </div>
   <!--项目配置-->
   <ProjectSetting ref="drawerSetting" />
+  <!-- 全局悬浮聊天窗口 -->
+      <FloatingChatWindow
+        v-if="$route.name !== 'login'"
+        @dock-change="handleChatDockChange"
+      />
 </template>
 
 <script lang="ts">

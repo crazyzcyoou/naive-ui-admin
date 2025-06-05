@@ -1,19 +1,20 @@
 <template>
-  <n-grid cols="2 s:2 m:2 l:3 xl:3 2xl:3" responsive="screen">
-    <n-grid-item>
-      <BasicForm @register="registerForm" />
-    </n-grid-item>
-  </n-grid>
+  <h1 style="font-size: 22px;">需求</h1>
+  <div class="pt-2">
+    <BasicForm @register="registerForm" />
+
+  </div>
 </template>
 
 <script lang="ts" setup>
   import { FormSchema, useForm } from '@/components/Form';
-  import { basicModal, useModal } from '@/components/Modal';
+  import { useModal } from '@/components/Modal';
   import { watchEffect } from 'vue'
 
   const props = defineProps<{
     params: Record<string, any>
   }>();
+
   const schemas: FormSchema[] = [
     {
       field: 'proposal_document',
@@ -101,7 +102,16 @@
     {
       field: 'belonging_suppliers',
       component: 'NInput',
-      label: '所属供应商',
+      label: '属供应商',
+      componentProps: {
+        placeholder: '',
+      },
+      rules: [{ required: false, message: '', trigger: ['blur'] }],
+    },
+    {
+      field: 'belonging_suppliers',
+      component: 'NInput',
+      label: '匹配进度',
       componentProps: {
         placeholder: '',
       },
@@ -120,22 +130,22 @@
     model: props.params,
   });
 
-  const [modalRegister, { openModal, closeModal, setSubLoading }] = useModal({
-    title: '编辑',
-    subBtuText: '保存',
-  });
+  // const [modalRegister, { openModal, closeModal, setSubLoading }] = useModal({
+  //   title: '编辑',
+  //   subBtuText: '保存',
+  // });
 
-  async function okModal() {
-    const formRes = await submit();
-    console.log(props)
-    console.log(formRes)
-    if (formRes) {
-      closeModal();
-      console.log('formRes', formRes);
-    } else {
-      setSubLoading(false);
-    }
-  }
+  // async function okModal() {
+  //   const formRes = await submit();
+  //   console.log(props)
+  //   console.log(formRes)
+  //   if (formRes) {
+  //     closeModal();
+  //     console.log('formRes', formRes);
+  //   } else {
+  //     setSubLoading(false);
+  //   }
+  // }
 
   watchEffect(() => {
     if (props.params) {
@@ -143,6 +153,6 @@
     }
   });
   defineExpose({
-    openModal,
+    // openModal,
   });
 </script>
